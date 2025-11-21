@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rahata Store | Premium Hoodies</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #111111;
+            --bg: #ffffff;
+            --gray: #f5f5f5;
+            --danger: #d32f2f;
+            --success: #007d48;
+            --admin-color: #2563eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg); color: var(--primary); overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* --- Navbar --- */
+        header { background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eee; }
+        .navbar { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 15px 40px; position: relative; }
+        
+        /* LOGO STYLE */
+        .logo { display: block; text-decoration: none; }
+        .logo img { height: 50px; width: auto; object-fit: contain; display: block; }
+
+        /* CENTERED MENU */
+        .nav-links { display: flex; list-style: none; gap: 30px; position: absolute; left: 50%; transform: translateX(-50%); margin: 0; }
+        .nav-links li { cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; position: relative; }
+        .nav-links li:hover { opacity: 0.6; }
+        .nav-links li.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 2px; background: black; }
+        #nav-sale { color: var(--danger); }
+        #nav-sale.active::after { background: var(--danger); }
+
+        .right-group { display: flex; align-items: center; gap: 20px; }
+        .search-wrapper { position: relative; width: 220px; transition: width 0.3s ease; }
+        .search-wrapper:focus-within { width: 280px; }
+        .search-input { width: 100%; padding: 8px 35px 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: #f9f9f9; font-size: 0.9rem; outline: none; transition: background 0.3s, border-color 0.3s; }
+        .search-input:focus { background: white; border-color: #111; }
+        .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none; font-size: 0.9rem; }
+        .icon-btn { cursor: pointer; font-size: 1.2rem; background: none; border: none; position: relative; transition: transform 0.2s; }
+        .icon-btn:hover { transform: scale(1.1); }
+        .cart-badge { position: absolute; top: -5px; right: -8px; background: var(--primary); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
+
+        /* --- Page Content --- */
+        .page-section { display: none; animation: fadeIn 0.5s ease; flex: 1; } 
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Hero --- */
+        .hero { width: 100%; height: 80vh; position: relative; background-image: url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; display: flex; align-items: flex-end; padding-bottom: 60px; margin-bottom: 40px; }
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); }
+        .hero-content { position: relative; z-index: 2; color: white; padding-left: 5%; max-width: 700px; }
+        .hero h1 { font-size: 3.5rem; font-weight: 900; line-height: 0.95; margin-bottom: 20px; text-transform: uppercase; }
+        .hero-btn { background-color: white; color: black; padding: 12px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; display: inline-block; cursor: pointer; transition: 0.3s; border: none; font-size: 1rem; }
+        .hero-btn:hover { background-color: #ddd; }
+
+        /* --- Grid --- */
+        .container { max-width: 1440px; margin: 0 auto; padding: 0 5%; }
+        .section-title { font-size: 2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; text-align: center; margin-top: 40px; }
+        .section-desc { text-align: center; color: #666; margin-bottom: 40px; font-size: 1rem; }
+        .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 30px; margin-bottom: 60px; }
+        
+        .product-card { cursor: pointer; transition: transform 0.3s; position: relative; }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-image { width: 100%; aspect-ratio: 1/1; background: var(--gray); margin-bottom: 15px; position: relative; overflow: hidden; border-radius: 4px; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .product-card:hover img { transform: scale(1.05); }
+        .stock-badge { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.9); padding: 4px 10px; font-size: 0.75rem; font-weight: 700; border-radius: 4px; text-transform: uppercase; z-index: 2; }
+        .sale-badge { position: absolute; top: 10px; right: 10px; background: var(--danger); color: white; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; border-radius: 4px; text-transform: uppercase; z-index: 2; }
+        
+        .product-info { display: flex; flex-direction: column; gap: 4px; }
+        .product-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; color: var(--primary); }
+        .product-category { color: #757575; font-size: 0.9rem; }
+        .product-price-wrap { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
+        .product-price { font-weight: 600; font-size: 1rem; }
+        .product-old-price { text-decoration: line-through; color: #999; font-size: 0.9rem; }
+        .product-discount-price { color: var(--danger); font-weight: 700; font-size: 1rem; }
+
+        /* --- Admin Controls --- */
+        .admin-controls { display: none; margin-top: 10px; gap: 5px; flex-wrap: wrap; }
+        .admin-active .admin-controls { display: flex; }
+        .btn-admin-edit { background: var(--admin-color); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
+        .btn-admin-sale { background: #f59e0b; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
+        .btn-admin-delete { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
+        
+        .admin-panel { display: none; background: #f0f9ff; border: 1px solid #bae6fd; padding: 20px; margin-bottom: 40px; border-radius: 8px; }
+        .admin-active .admin-panel { display: block; }
+        .admin-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .admin-form input, .admin-form select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .admin-form-full { grid-column: 1 / -1; }
+
+        /* --- About & FAQ --- */
+        .about-wrap, .faq-wrap { max-width: 800px; margin: 60px auto; padding: 0 20px; }
+        .about-text { font-size: 1.1rem; line-height: 1.8; color: #444; margin-bottom: 50px; text-align: center; }
+        .features { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; text-align: center; }
+        .feature-box { flex: 1; min-width: 200px; padding: 20px; background: var(--gray); border-radius: 8px; }
+        .feature-box i { font-size: 2rem; margin-bottom: 15px; }
+        
+        .faq-item { border-bottom: 1px solid #eee; padding: 20px 0; }
+        .faq-question { font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
+        .faq-answer { display: none; margin-top: 15px; color: #555; line-height: 1.6; }
+        .faq-item.active .faq-answer { display: block; animation: fadeIn 0.3s; }
+        .faq-icon { transition: 0.3s; }
+        .faq-item.active .faq-icon { transform: rotate(180deg); }
+
+        /* --- GLOBAL FOOTER --- */
+        footer { background-color: #111; color: #fff; padding: 60px 5% 20px; margin-top: auto; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; max-width: 1440px; margin: 0 auto; margin-bottom: 40px; }
+        .footer-section h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: #fff; text-transform: uppercase; }
+        .footer-section p, .footer-section a { color: #999; font-size: 0.9rem; line-height: 1.8; text-decoration: none; display: block; margin-bottom: 8px; transition: 0.2s; }
+        .footer-section a:hover { color: #fff; }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 20px; text-align: center; color: #555; font-size: 0.8rem; display: flex; justify-content: center; gap: 20px; align-items: center; }
+        #admin-login-trigger { cursor: pointer; }
+        #admin-login-trigger:hover { color: #fff; }
+
+        /* --- Modal & Cart --- */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+        .modal-content { background: white; width: 95%; max-width: 900px; height: auto; max-height: 90vh; display: flex; overflow: hidden; }
+        .modal-left { flex: 1.1; background: var(--gray); display: flex; align-items: center; justify-content: center; }
+        .modal-left img { width: 100%; height: 100%; object-fit: cover; }
+        .modal-right { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
+        .close-modal { align-self: flex-end; font-size: 1.5rem; cursor: pointer; margin-bottom: 10px; }
+        .cart-sidebar { position: fixed; top: 0; right: -450px; width: 400px; height: 100%; background: white; z-index: 3000; transition: 0.4s ease; padding: 30px; display: flex; flex-direction: column; box-shadow: -5px 0 30px rgba(0,0,0,0.1); }
+        .cart-sidebar.active { right: 0; }
+        .cart-item { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .cart-item img { width: 70px; height: 70px; object-fit: cover; border-radius: 4px; }
+        
+        select { width: 100%; padding: 15px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn-black { background: black; color: white; width: 100%; padding: 18px; border: none; border-radius: 50px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: auto; }
+        .btn-black:hover { background: #333; }
+        .btn-black:disabled { background: #ccc; cursor: not-allowed; }
+
+        @media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .navbar { padding: 15px 20px; flex-direction: column; gap: 15px; }
+            .nav-links { position: static; transform: none; margin: 0; gap: 15px; font-size: 0.8rem; width: 100%; justify-content: center; display: flex; flex-wrap: wrap; } 
+            .right-group { width: 100%; justify-content: space-between; }
+            .search-wrapper { width: 100%; }
+            .search-input:focus { width: 100%; }
+            .product-grid { grid-template-columns: 1fr; }
+            .modal-content { flex-direction: column; }
+            .modal-left { height: 250px; }
+            .cart-sidebar { width: 100%; }
+            .admin-form { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <header>
+        <div class="navbar">
+            <a href="#" class="logo" onclick="switchPage('home')">
+                <img src="static/images/logo-text.png" alt="Rahata Store" onerror="this.style.display='none'; this.parentElement.innerHTML='RAHATA STORE'">
+            </a>
+            
+            <ul class="nav-links">
+                <li id="nav-home" class="active" onclick="switchPage('home')">Home</li>
+                <li id="nav-products" onclick="switchPage('products')">Products</li>
+                <li id="nav-sale" onclick="switchPage('sale')">Sale</li>
+                <li id="nav-faq" onclick="switchPage('faq')">FAQ</li>
+                <li id="nav-about" onclick="switchPage('about')">About Us</li>
+            </ul>
+            <div class="right-group">
+                <div class="search-wrapper">
+                    <input type="text" id="search-input" class="search-input" placeholder="Search..." onkeyup="handleSearch()">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <button class="icon-btn" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- PAGE: HOME -->
+    <div id="page-home" class="page-section active">
+        <section class="hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>Just Do It.<br>Style Your Way.</h1>
+                <p>Exclusive hoodie collection with premium quality for your active lifestyle.</p>
+            </div>
+        </section>
+        <div class="container">
+            <div class="section-title">Best Sellers</div>
+            <div class="section-desc">This week's favorites</div>
+            <div class="product-grid" id="home-grid"></div>
+            <div style="text-align:center; margin-bottom:60px;">
+                <button class="btn-black" style="width:auto; padding: 12px 40px;" onclick="switchPage('products')">View All Products</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE: PRODUCTS -->
+    <div id="page-products" class="page-section">
+        <div class="container" style="padding-top: 40px;">
+            <div id="admin-panel" class="admin-panel">
+                <h3 style="margin-bottom: 15px; color: var(--admin-color);">Admin Mode: Add Product</h3>
+                <div class="admin-form">
+                    <input type="text" id="new-name" placeholder="Product Name">
+                    <input type="text" id="new-cat" placeholder="Category">
+                    <input type="number" id="new-price" placeholder="Normal Price (Rp)">
+                    <input type="number" id="new-sale-price" placeholder="Sale Price (Optional)" style="border-color: var(--danger);">
+                    <input type="number" id="new-stock" placeholder="Initial Stock">
+                    <input type="text" id="new-desc" placeholder="Short Description" class="admin-form-full">
+                </div>
+                <button class="btn-black" style="background: var(--admin-color); width: auto; padding: 10px 20px;" onclick="addNewProduct()">+ Add Product</button>
+                <button class="btn-black" style="background: #555; width: auto; padding: 10px 20px;" onclick="logoutAdmin()">Logout Admin</button>
+            </div>
+
+            <div class="section-title">All Products</div>
+            <div class="section-desc">Find your best style from exclusive choices.</div>
+            <div class="product-grid" id="products-grid"></div>
+            <div id="no-results" style="text-align:center; display:none; padding:40px; color:#777;">No products found.</div>
+        </div>
+    </div>
+
+    <!-- PAGE: SALE -->
+    <div id="page-sale" class="page-section">
+        <div class="container" style="padding-top: 40px;">
+            <div class="section-title" style="color: var(--danger);">Flash Sale</div>
+            <div class="section-desc">Limited offers on selected items.</div>
+            <div class="product-grid" id="sale-grid"></div>
+        </div>
+    </div>
+
+    <!-- PAGE: FAQ -->
+    <div id="page-faq" class="page-section">
+        <div class="faq-wrap">
+            <div class="section-title">Frequently Asked Questions</div>
+            <div class="section-desc">Answers to common questions.</div>
+            <div id="faq-container">
+                <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question">How to order? <i class="fas fa-chevron-down faq-icon"></i></div><div class="faq-answer">Select a product, choose size/color, add to bag, and checkout.</div></div>
+                <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question">Shipping time? <i class="fas fa-chevron-down faq-icon"></i></div><div class="faq-answer">Jabodetabek 1-2 days, Other regions 2-4 days via JNE/J&T.</div></div>
+                <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question">Can I exchange sizes? <i class="fas fa-chevron-down faq-icon"></i></div><div class="faq-answer">Yes, within 3 days of receipt, provided tags are attached and item is unwashed.</div></div>
+                <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-question">Is the material thick? <i class="fas fa-chevron-down faq-icon"></i></div><div class="faq-answer">Yes, we use Premium Cotton Fleece (280gsm) which is thick, soft, and durable.</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE: ABOUT US -->
+    <div id="page-about" class="page-section">
+        <div class="about-wrap">
+            <div class="section-title">About Rahata Store</div>
+            <p class="about-text">Rahata Store is dedicated to providing high-quality streetwear that combines comfort and style. We believe hoodies are more than just warm clothing—they are a lifestyle statement.</p>
+            <div class="features">
+                <div class="feature-box"><i class="fas fa-gem"></i><h3>Premium Quality</h3></div>
+                <div class="feature-box"><i class="fas fa-shipping-fast"></i><h3>Fast Shipping</h3></div>
+                <div class="feature-box"><i class="fas fa-tags"></i><h3>Best Price</h3></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBAL FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Rahata Store</h3>
+                <p>Premium hoodies with the latest styles and high-quality materials for your comfort.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Menu</h3>
+                <a href="#" onclick="switchPage('home')">Home</a>
+                <a href="#" onclick="switchPage('products')">Products</a>
+                <a href="#" onclick="switchPage('sale')">Sale</a>
+                <a href="#" onclick="switchPage('faq')">FAQ</a>
+                <a href="#" onclick="switchPage('about')">About Us</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p><i class="fab fa-whatsapp"></i> <a href="https://wa.me/6287785913689" target="_blank" style="display:inline;">Chat WhatsApp</a></p>
+                <p><i class="far fa-envelope"></i> support@rahatastore.com</p>
+                <p><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2023 Rahata Store. All Rights Reserved.</span>
+            <span id="admin-login-trigger" onclick="loginAdmin()">Admin Login</span>
+        </div>
+    </footer>
+
+    <!-- Modal & Cart -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-left" id="modal-img-container"></div>
+            <div class="modal-right">
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+                <h1 style="font-size:1.8rem; font-weight:800; margin-bottom:5px;" id="modal-title">Product Name</h1>
+                <p style="color:#777; margin-bottom:15px;" id="modal-category">Kategori</p>
+                <p style="color:#555; line-height:1.6; margin-bottom:20px;" id="modal-desc">Description...</p>
+                <div id="modal-price-container" style="margin-bottom: 20px;"></div>
+                <div style="font-weight:600; margin-bottom:20px;" id="stock-display">Stok: 0</div>
+                <label style="font-weight:600; display:block; margin-bottom:8px;">Size</label>
+                <select id="modal-size" onchange="updatePrice()">
+                    <option value="S" data-extra="0">S</option>
+                    <option value="M" data-extra="0">M</option>
+                    <option value="L" data-extra="0">L</option>
+                    <option value="XL" data-extra="10000">XL (+Rp 10.000)</option>
+                    <option value="XXL" data-extra="20000">XXL (+Rp 20.000)</option>
+                </select>
+                <label style="font-weight:600; display:block; margin-bottom:8px;">Color</label>
+                <select id="modal-color"></select>
+                <button id="btn-add-cart" class="btn-black" onclick="addToCart()">Add to Bag</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cart-sidebar" id="cartSidebar">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid #eee;">
+            <h2 style="font-size:1.5rem; font-weight:700;">Bag</h2>
+            <span onclick="toggleCart()" style="cursor:pointer; font-size:1.5rem">&times;</span>
+        </div>
+        <div id="cart-items" style="flex:1; overflow-y:auto;"></div>
+        <div style="border-top: 1px solid #eee; padding-top: 20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-weight:700;"><span>Total</span><span id="cart-total">Rp 0</span></div>
+            <button class="btn-black" onclick="processCheckout()">Checkout</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIG ---
+        const fmt = (n) => 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        const KEY_PROD = 'rahata_fixed_v19'; // Updated key for color data
+        const KEY_CART = 'rahata_cart_v19';
+        let products = [], cart = JSON.parse(localStorage.getItem(KEY_CART)) || [], currentProduct = null;
+        let isAdmin = false;
+
+        // --- FULL PRODUCT CATALOG WITH COLORS (ENGLISH) ---
+        const initialCatalog = [
+            { id: 1, name: "Hoodie Cotton", cat: "Lifestyle", price: 310000, desc: "Pure comfort with 100% premium cotton. Soft, cool, and perfect for daily use.", colors: ['Black', 'Grey', 'Navy'] },
+            { id: 2, name: "Hoodie Fleece Premium", cat: "Winter", price: 350000, originalPrice: 450000, desc: "Maximum warmth with thick fleece material. Perfect for cold weather without sacrificing style. (SALE ITEM)", colors: ['Grey', 'Black', 'Cream'] },
+            { id: 3, name: "Hoodie Oversized", cat: "Streetwear", price: 290000, desc: "Look trendy with a relaxed oversized cut. A streetwear essential you must have.", colors: ['White', 'Black', 'Brown'] },
+            { id: 4, name: "Hoodie Zip", cat: "Sport", price: 325000, desc: "Practical and stylish. Zip-up hoodie with a classic design easily paired with any outfit.", colors: ['Navy', 'Black', 'Red'] },
+            { id: 5, name: "Sleeveless Hoodie", cat: "Gym", price: 250000, originalPrice: 300000, desc: "Free your movement during workouts or hanging out. Masculine and sporty sleeveless cut. (SALE ITEM)", colors: ['Red', 'Black', 'Blue'] },
+            { id: 6, name: "Front Print Hoodie", cat: "Graphic", price: 315000, desc: "Express yourself with high-quality front graphic print. Durable and long-lasting.", colors: ['Green', 'Black', 'White'] },
+            { id: 7, name: "Chunky Knit Hoodie", cat: "Vintage", price: 420000, desc: "Unique knit texture for a classy vintage look. Very warm and comfortable.", colors: ['Cream', 'Brown', 'Maroon'] },
+            { id: 8, name: "Hoodie Bomber", cat: "Outerwear", price: 380000, originalPrice: 500000, desc: "Cool fusion between a hoodie and a bomber jacket. Manly look for the modern man. (SALE ITEM)", colors: ['Light Blue', 'Black', 'Army Green'] },
+            { id: 9, name: "Hoodie Crop Top", cat: "Women", price: 275000, desc: "Chic crop cut for active women. Matches perfectly with high-waist jeans.", colors: ['Pink', 'White', 'Black'] },
+            { id: 10, name: "Reflective Hoodie", cat: "Night Run", price: 360000, desc: "Stay visible at night. Reflective accents that glow when hit by light, safe and cool.", colors: ['Black', 'Grey'] },
+            { id: 11, name: "Hoodie Balaclava", cat: "Techwear", price: 340000, desc: "Total protection with integrated balaclava design. Right choice for motorcycle riders or extreme weather.", colors: ['Dark Grey', 'Black', 'Navy'] },
+            { id: 12, name: "Hoodie Cotton 30s", cat: "Basic", price: 200000, originalPrice: 250000, desc: "Light and cool. 30s material suitable for tropical climates. (SALE ITEM)", colors: ['Leaf Green', 'Cream', 'Grey'] },
+            { id: 13, name: "Hoodie Tie-Dye", cat: "Artistic", price: 330000, desc: "Every piece is art. Handmade tie-dye motif that is unique and colorful.", colors: ['Multicolor', 'Blue-White', 'Purple-Pink'] },
+            { id: 14, name: "Hoodie Waterproof", cat: "Outdoor", price: 450000, desc: "Don't fear the rain. Water-resistant material keeping your body dry and comfortable.", colors: ['Black', 'Navy', 'Army Green'] },
+            { id: 15, name: "Hoodie Boxy", cat: "Streetwear", price: 305000, desc: "Modern and edgy boxy silhouette. Gives a firm structure to your appearance.", colors: ['Maroon', 'Black', 'Grey'] },
+            { id: 16, name: "Drawstring-less Hoodie", cat: "Minimalist", price: 280000, desc: "Minimalist design without hood drawstrings. Clean and elegant look.", colors: ['Navy', 'Black', 'Cream'] },
+            { id: 17, name: "Hoodie Cotton 20s", cat: "Basic", price: 230000, desc: "Medium thickness durability (20s). Durable and doesn't stretch easily even with frequent washing.", colors: ['Royal Blue', 'Grey', 'Red'] },
+            { id: 18, name: "Hoodie Cotton 24s", cat: "Standard", price: 260000, desc: "International distro standard. Smooth texture and absorbs sweat very well.", colors: ['Grey', 'Black', 'Dark Brown'] },
+            { id: 19, name: "Hoodie V-Neck", cat: "Casual", price: 295000, desc: "V-neck innovation on a hoodie. Gives a longer neck impression and casual look.", colors: ['Ivory', 'Black', 'Pink'] },
+            { id: 20, name: "Washed Hoodie", cat: "Vintage", price: 375000, originalPrice: 450000, desc: "Aesthetic washed/faded effect. Gives a cool 'worn-in' vintage look from the start. (SALE ITEM)", colors: ['Black', 'Navy', 'Maroon'] },
+            { id: 21, name: "Double Hood Hoodie", cat: "Layering", price: 390000, desc: "Instant layering. Design looks like wearing two hoodies, providing extra warmth.", colors: ['Bright Red', 'Black', 'Electric Blue'] },
+            { id: 22, name: "Hoodie Jogging", cat: "Sport", price: 300000, desc: "Designed specifically for runners. Breathable material maintaining stable body temperature.", colors: ['Pastel Yellow', 'Mint', 'Cream'] },
+            { id: 23, name: "Thumbhole Hoodie", cat: "Active", price: 310000, desc: "Keep sleeves in place. Thumbhole feature for extra comfort during active movement.", colors: ['Black', 'Grey', 'Dark Blue'] },
+            { id: 24, name: "Hoodie Striped", cat: "Pattern", price: 320000, desc: "Timeless striped motif. Gives a more athletic and dynamic body illusion.", colors: ['White/Blue', 'Black/White', 'Red/Navy'] },
+            { id: 25, name: "Faux Fur Hoodie", cat: "Luxury", price: 410000, desc: "Sensation of hugging a cloud. Super soft faux fur material pampering the skin.", colors: ['Brown', 'Cream', 'Black'] },
+            { id: 26, name: "Hoodie Baseball", cat: "Sport", price: 330000, desc: "Raglan two-tone design baseball style. Sporty and classic all the time.", colors: ['Grey/Black', 'Red/White', 'Blue/White'] },
+            { id: 27, name: "Back Print Hoodie", cat: "Graphic", price: 340000, desc: "Statement on your back. Large graphic design on the back for those who dare to be different.", colors: ['Army Green', 'Black', 'Brown'] },
+            { id: 28, name: "Hoodie Pullover", cat: "Classic", price: 270000, desc: "Simple without hassle. Just put it on, look handsome instantly. Essential wardrobe item.", colors: ['Navy', 'Black', 'Grey'] },
+            { id: 29, name: "Zipper Pocket Hoodie", cat: "Utility", price: 355000, desc: "Secure belongings. Pockets with zippers to store phone or keys during activities.", colors: ['Black', 'Grey', 'Navy Blue'] },
+            { id: 30, name: "Camouflage Hoodie", cat: "Military", price: 365000, desc: "Look fierce with camo motif. Suitable for outdoor or military look.", colors: ['Brown/Green', 'Grey/Black'] }
+        ];
+
+        function init() {
+            const saved = localStorage.getItem(KEY_PROD);
+            if (saved) {
+                products = JSON.parse(saved);
+                // Use a property check to reset data if schema changed (e.g. colors)
+                if (!products[0].colors) resetData(); 
+            } else {
+                resetData();
+            }
+            if (sessionStorage.getItem('rahata_admin') === 'true') enableAdminMode();
+            renderAllGrids();
+            updateCartBadge();
+            updateCartList();
+        }
+
+        function resetData() {
+            products = initialCatalog.map(item => ({
+                ...item,
+                stock: Math.floor(Math.random() * 15) + 5,
+            }));
+            saveProducts();
+        }
+
+        function saveProducts() { localStorage.setItem(KEY_PROD, JSON.stringify(products)); }
+        function saveCart() { localStorage.setItem(KEY_CART, JSON.stringify(cart)); updateCartBadge(); }
+
+        function renderAllGrids() {
+            renderGrid(products.slice(0, 3), 'home-grid');
+            renderGrid(products, 'products-grid');
+            const saleItems = products.filter(p => p.originalPrice);
+            renderGrid(saleItems, 'sale-grid');
+        }
+
+        // --- ADMIN ---
+        function loginAdmin() {
+            const pass = prompt("Enter Admin Password:");
+            if (pass === "admin123") {
+                enableAdminMode();
+                alert("Login Successful!");
+                switchPage('products');
+            } else if (pass) { alert("Wrong Password!"); }
+        }
+        function enableAdminMode() {
+            isAdmin = true;
+            sessionStorage.setItem('rahata_admin', 'true');
+            document.body.classList.add('admin-active');
+            document.getElementById('admin-login-trigger').innerText = 'Logout Admin';
+            document.getElementById('admin-login-trigger').onclick = logoutAdmin;
+            renderAllGrids();
+        }
+        function logoutAdmin() {
+            isAdmin = false;
+            sessionStorage.removeItem('rahata_admin');
+            document.body.classList.remove('admin-active');
+            document.getElementById('admin-login-trigger').innerText = 'Admin Login';
+            document.getElementById('admin-login-trigger').onclick = loginAdmin;
+            renderAllGrids();
+        }
+        function addNewProduct() {
+            const name = document.getElementById('new-name').value;
+            const cat = document.getElementById('new-cat').value;
+            const price = parseInt(document.getElementById('new-price').value);
+            const stock = parseInt(document.getElementById('new-stock').value);
+            const desc = document.getElementById('new-desc').value;
+            if (!name || !price) return alert("Name and Price are required!");
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            products.push({ id: newId, name, cat, price, stock, desc, colors:['Black','White'] });
+            saveProducts();
+            renderAllGrids();
+            alert("Product added successfully!");
+        }
+        function deleteProduct(id) {
+            if(confirm("Delete this product?")) {
+                products = products.filter(p => p.id !== id);
+                saveProducts();
+                renderAllGrids();
+            }
+        }
+        function editProduct(id) {
+            const p = products.find(x => x.id === id);
+            const newPrice = prompt("New Price:", p.price);
+            if (newPrice) { p.price = parseInt(newPrice); saveProducts(); renderAllGrids(); }
+        }
+        // New: Set Sale for Existing Products
+        function editSale(id) {
+            const p = products.find(x => x.id === id);
+            const salePrice = prompt(`Enter SALE price for ${p.name} (Normal: ${fmt(p.originalPrice || p.price)}). Enter 0 to remove sale.`);
+            if (salePrice !== null) {
+                const newSale = parseInt(salePrice);
+                if (newSale > 0) {
+                    if(!p.originalPrice) p.originalPrice = p.price;
+                    p.price = newSale;
+                } else {
+                    if(p.originalPrice) {
+                        p.price = p.originalPrice;
+                        delete p.originalPrice;
+                    }
+                }
+                saveProducts();
+                renderAllGrids();
+            }
+        }
+
+        // --- GRID RENDER ---
+        function renderGrid(data, elementId) {
+            const grid = document.getElementById(elementId);
+            grid.innerHTML = '';
+            data.forEach(p => {
+                const imgPath = `static/images/hoodie${p.id}.jpg`;
+                let badge = p.stock <= 0 ? '<span class="stock-badge out">Sold Out</span>' : (p.stock < 5 ? '<span class="stock-badge" style="color:orange">Only ' + p.stock + ' Left</span>' : '');
+                let priceHtml = `<div class="product-price">${fmt(p.price)}</div>`;
+                if (p.originalPrice) {
+                    badge += '<span class="sale-badge">SALE</span>';
+                    priceHtml = `<div class="product-price-wrap"><div class="product-discount-price">${fmt(p.price)}</div><div class="product-old-price">${fmt(p.originalPrice)}</div></div>`;
+                }
+                let adminHtml = isAdmin ? `<div class="admin-controls"><button class="btn-admin-edit" onclick="event.stopPropagation(); editProduct(${p.id})">Edit</button><button class="btn-admin-sale" onclick="event.stopPropagation(); editSale(${p.id})">Set Sale</button><button class="btn-admin-delete" onclick="event.stopPropagation(); deleteProduct(${p.id})">Delete</button></div>` : '';
+
+                grid.innerHTML += `
+                    <div class="product-card" onclick="openModal(${p.id})">
+                        <div class="product-image">${badge}<img src="${imgPath}" onerror="this.style.display='none'"></div>
+                        <div class="product-info">
+                            <div class="product-title">${p.name}</div>
+                            <div class="product-category">${p.cat}</div>
+                            ${priceHtml}
+                            ${adminHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- HELPERS ---
+        function switchPage(pid) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + pid).classList.add('active');
+            const nav = document.getElementById('nav-' + pid);
+            if(nav) nav.classList.add('active');
+            window.scrollTo(0,0);
+        }
+        function toggleFaq(el) { el.classList.toggle('active'); }
+        function handleSearch() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            if (q.length > 0) switchPage('products');
+            const f = products.filter(p => p.name.toLowerCase().includes(q));
+            renderGrid(f, 'products-grid');
+            document.getElementById('no-results').style.display = f.length === 0 ? 'block' : 'none';
+        }
+        function openModal(id) {
+            const p = products.find(x => x.id === id);
+            currentProduct = p;
+            document.getElementById('modal-title').innerText = p.name;
+            document.getElementById('modal-category').innerText = p.cat;
+            document.getElementById('modal-desc').innerText = p.desc || '-';
+            const priceC = document.getElementById('modal-price-container');
+            priceC.innerHTML = p.originalPrice ? `<div style="display:flex; gap:15px; align-items:center;"><span style="font-size:1.5rem; font-weight:700; color:#d32f2f;">${fmt(p.price)}</span><span style="text-decoration:line-through; color:#999; font-size:1.1rem;">${fmt(p.originalPrice)}</span></div>` : `<div style="font-size:1.5rem; font-weight:700;">${fmt(p.price)}</div>`;
+            const imgWrap = document.getElementById('modal-img-container');
+            imgWrap.innerHTML = `<img src="static/images/hoodie${p.id}.jpg" onerror="this.style.display='none'">`;
+            
+            const btn = document.getElementById('btn-add-cart');
+            const stock = document.getElementById('stock-display');
+            if(p.stock > 0) {
+                stock.innerText = `Stock: ${p.stock}`;
+                stock.style.color = '#007d48';
+                btn.disabled = false;
+                btn.innerText = "Add to Bag";
+                btn.style.background = "black";
+            } else {
+                stock.innerText = "Sold Out";
+                stock.style.color = "#d32f2f";
+                btn.disabled = true;
+                btn.innerText = "Sold Out";
+                btn.style.background = "#ccc";
+            }
+            
+            // Populate Colors
+            const colorSelect = document.getElementById('modal-color');
+            colorSelect.innerHTML = '';
+            // Use product specific colors, fallback to default if missing
+            const productColors = p.colors || ['Black', 'White']; 
+            productColors.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.innerText = c;
+                colorSelect.appendChild(opt);
+            });
+
+            document.getElementById('modal-size').value = "S";
+            document.getElementById('productModal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('productModal').style.display = 'none'; }
+        function updatePrice() {
+            if(!currentProduct) return;
+            const sizeEl = document.getElementById('modal-size');
+            const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
+            document.querySelector('#modal-price-container span').innerText = fmt(currentProduct.price + extra);
+        }
+        function addToCart() {
+            if(!currentProduct || currentProduct.stock <= 0) return alert("Stock empty.");
+            const sizeEl = document.getElementById('modal-size');
+            const colorEl = document.getElementById('modal-color');
+            const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
+            cart.push({ 
+                cartId: Date.now(), 
+                pid: currentProduct.id, 
+                name: currentProduct.name, 
+                price: currentProduct.price + extra, 
+                size: sizeEl.value,
+                color: colorEl.value
+            });
+            saveCart(); updateCartList(); closeModal(); toggleCart();
+        }
+        function removeFromCart(cid) { cart = cart.filter(c => c.cartId !== cid); saveCart(); updateCartList(); }
+        function updateCartBadge() { document.getElementById('cart-count').innerText = cart.length; }
+        function updateCartList() {
+            const c = document.getElementById('cart-items');
+            const t = document.getElementById('cart-total');
+            c.innerHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price;
+                c.innerHTML += `<div class="cart-item"><img src="static/images/hoodie${item.pid}.jpg" onerror="this.style.display='none'"><div style="flex:1"><div style="font-weight:600;font-size:0.9rem">${item.name}</div><div style="font-size:0.8rem;color:#666">${item.color} | ${item.size}</div><div style="display:flex;justify-content:space-between;margin-top:5px;"><span style="font-weight:600">${fmt(item.price)}</span><span onclick="removeFromCart(${item.cartId})" style="color:red;cursor:pointer;font-size:0.8rem">Remove</span></div></div></div>`;
+            });
+            t.innerText = fmt(total);
+        }
+        function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); }
+        function processCheckout() {
+            if(cart.length === 0) return alert("Cart is empty");
+            cart.forEach(c => { const p = products.find(x => x.id === c.pid); if(p && p.stock > 0) p.stock--; });
+            saveProducts();
+            let msg = "Hello Rahata Store, my order:\n\n";
+            let total = 0;
+            cart.forEach((c, i) => { msg += `${i+1}. ${c.name} (${c.color}, ${c.size}) - ${fmt(c.price)}\n`; total += c.price; });
+            msg += `\nTotal: ${fmt(total)}`;
+            cart = []; saveCart(); updateCartList(); renderAllGrids(); toggleCart();
+            window.open(`https://wa.me/6287785913689?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+        window.onclick = (e) => { if(e.target == document.getElementById('productModal')) closeModal(); }
+        init();
+    </script>
+</body>
+</html>
