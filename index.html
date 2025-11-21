@@ -87,6 +87,8 @@
         .btn-admin-edit { background: var(--admin-color); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
         .btn-admin-sale { background: #f59e0b; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
         .btn-admin-delete { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
+        /* NEW STOCK BUTTON STYLE */
+        .btn-admin-stock { background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
         
         .admin-panel { display: none; background: #f0f9ff; border: 1px solid #bae6fd; padding: 20px; margin-bottom: 40px; border-radius: 8px; }
         .admin-active .admin-panel { display: block; }
@@ -469,6 +471,23 @@
                 renderAllGrids();
             }
         }
+        // NEW: Add Stock Function
+        function addStock(id) {
+            const p = products.find(x => x.id === id);
+            const quantity = prompt(`Stok Saat Ini: ${p.stock}\nBerapa banyak stok yang ingin ditambahkan? (Gunakan angka negatif untuk mengurangi)`, "10");
+            if (quantity !== null) {
+                const qty = parseInt(quantity);
+                if (!isNaN(qty)) {
+                    p.stock += qty;
+                    if (p.stock < 0) p.stock = 0; // Prevent negative stock
+                    saveProducts();
+                    renderAllGrids();
+                    alert(`Stok berhasil diperbarui! Stok baru: ${p.stock}`);
+                } else {
+                    alert("Input tidak valid. Harap masukkan angka.");
+                }
+            }
+        }
 
         // --- GRID RENDER ---
         function renderGrid(data, elementId) {
@@ -482,7 +501,14 @@
                     badge += '<span class="sale-badge">SALE</span>';
                     priceHtml = `<div class="product-price-wrap"><div class="product-discount-price">${fmt(p.price)}</div><div class="product-old-price">${fmt(p.originalPrice)}</div></div>`;
                 }
-                let adminHtml = isAdmin ? `<div class="admin-controls"><button class="btn-admin-edit" onclick="event.stopPropagation(); editProduct(${p.id})">Edit</button><button class="btn-admin-sale" onclick="event.stopPropagation(); editSale(${p.id})">Set Sale</button><button class="btn-admin-delete" onclick="event.stopPropagation(); deleteProduct(${p.id})">Delete</button></div>` : '';
+                // UPDATED ADMIN HTML TO INCLUDE STOCK BUTTON
+                let adminHtml = isAdmin ? `
+                    <div class="admin-controls">
+                        <button class="btn-admin-edit" onclick="event.stopPropagation(); editProduct(${p.id})">Edit</button>
+                        <button class="btn-admin-stock" onclick="event.stopPropagation(); addStock(${p.id})">+ Stock</button>
+                        <button class="btn-admin-sale" onclick="event.stopPropagation(); editSale(${p.id})">Sale</button>
+                        <button class="btn-admin-delete" onclick="event.stopPropagation(); deleteProduct(${p.id})">Delete</button>
+                    </div>` : '';
 
                 grid.innerHTML += `
                     <div class="product-card" onclick="openModal(${p.id})">
@@ -608,4 +634,5 @@
         init();
     </script>
 </body>
+
 </html>
