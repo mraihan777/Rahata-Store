@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rahata Store | Premium Hoodies</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #111111;
+            --secondary: #757575;
+            --bg: #ffffff;
+            --light-gray: #f5f5f5;
+            --danger: #d32f2f;
+            --success: #007d48;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--bg); color: var(--primary); line-height: 1.5; }
+
+        /* --- Header --- */
+        header { background: var(--bg); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eee; }
+        .navbar { max-width: 1440px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; background: white; }
+        
+        .logo { font-size: 1.8rem; font-weight: 900; color: var(--primary); text-decoration: none; text-transform: uppercase; letter-spacing: -1px; }
+        
+        /* Search Bar */
+        .search-wrapper {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 20px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border-radius: 25px;
+            border: 1px solid #e5e5e5;
+            background: #f5f5f5;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.3s;
+        }
+        .search-input:focus { background: white; border-color: #111; }
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            pointer-events: none;
+        }
+
+        .nav-links { display: flex; list-style: none; gap: 30px; }
+        .nav-links a { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 0.95rem; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-links a:hover { opacity: 0.6; }
+
+        .nav-icons { display: flex; align-items: center; gap: 20px; }
+        .icon-btn { cursor: pointer; font-size: 1.3rem; background: none; border: none; position: relative; }
+        .cart-badge { position: absolute; top: -5px; right: -8px; background: var(--primary); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
+
+        /* --- Hero (Home) --- */
+        .hero { width: 100%; height: 80vh; position: relative; background-image: url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; display: flex; align-items: flex-end; padding-bottom: 60px; }
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); }
+        .hero-content { position: relative; z-index: 2; color: white; padding-left: 5%; max-width: 700px; }
+        .hero h1 { font-size: 3.5rem; font-weight: 900; line-height: 0.95; margin-bottom: 20px; text-transform: uppercase; }
+        .hero p { font-size: 1.1rem; font-weight: 400; margin-bottom: 30px; opacity: 0.9; }
+        .hero-btn { background-color: white; color: black; padding: 12px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; display: inline-block; transition: background 0.3s; }
+        .hero-btn:hover { background-color: #ddd; }
+
+        /* --- Collection Grid (UPDATED: 3 COLUMNS) --- */
+        .section-padding { padding: 80px 5%; max-width: 1440px; margin: 0 auto; }
+        .section-header { margin-bottom: 40px; text-align: center; }
+        .section-title { font-size: 2rem; font-weight: 800; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 10px; }
+        .section-subtitle { color: #666; font-size: 1rem; }
+        
+        /* Update: Grid menjadi 3 Kolom fix */
+        .product-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 40px 30px; 
+        }
+        
+        .product-card { cursor: pointer; transition: transform 0.3s, opacity 0.3s; }
+        .product-card:hover { opacity: 0.9; transform: translateY(-5px); }
+        .product-image { width: 100%; aspect-ratio: 1/1; background-color: #f5f5f5; margin-bottom: 15px; position: relative; overflow: hidden; border-radius: 4px; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .product-card:hover img { transform: scale(1.05); }
+        
+        .stock-badge { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.95); padding: 4px 10px; font-size: 0.75rem; font-weight: 700; border-radius: 4px; z-index: 10; text-transform: uppercase; }
+        .stock-badge.out { background: var(--danger); color: white; }
+
+        .product-info { display: flex; flex-direction: column; gap: 4px; }
+        .product-title { font-weight: 700; font-size: 1.1rem; color: var(--primary); } /* Sedikit diperbesar */
+        .product-category { color: var(--secondary); font-size: 0.9rem; }
+        .product-price { font-weight: 600; font-size: 1rem; margin-top: 6px; color: #111; }
+
+        /* --- About Us Section --- */
+        .about-section { background: #f9f9f9; padding: 80px 5%; text-align: center; }
+        .about-container { max-width: 800px; margin: 0 auto; }
+        .about-text { font-size: 1.1rem; line-height: 1.8; color: #444; margin-bottom: 40px; }
+        .features { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+        .feature-box { flex: 1; min-width: 200px; }
+        .feature-box i { font-size: 2rem; margin-bottom: 15px; color: #111; }
+        .feature-box h3 { font-weight: 700; margin-bottom: 10px; }
+        .feature-box p { font-size: 0.9rem; color: #666; }
+
+        /* --- Modal --- */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(3px); align-items: center; justify-content: center; }
+        .modal-content { background-color: white; width: 95%; max-width: 900px; height: auto; max-height: 90vh; display: flex; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .modal-left { flex: 1.1; background: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .modal-left img { width: 100%; height: 100%; object-fit: cover; }
+        .modal-right { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
+        .modal-close { align-self: flex-end; font-size: 1.5rem; cursor: pointer; margin-bottom: 10px; }
+        .modal-h1 { font-size: 2rem; font-weight: 800; line-height: 1.1; margin-bottom: 5px; }
+        .modal-meta { color: var(--secondary); margin-bottom: 15px; font-weight: 500; font-size: 1rem; }
+        .modal-desc { color: #555; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; }
+        .modal-price-lg { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; }
+        .stock-display { font-size: 0.9rem; font-weight: 600; margin-bottom: 25px; }
+        .stock-display.ok { color: var(--success); }
+        .stock-display.low { color: #e65100; }
+        .stock-display.out { color: var(--danger); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block; }
+        select { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; cursor: pointer; outline: none; }
+        select:hover { border-color: #000; }
+        .btn-black { background-color: black; color: white; width: 100%; padding: 18px; border: none; border-radius: 50px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s; margin-top: auto; }
+        .btn-black:hover { background-color: #333; }
+        .btn-black:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* --- Cart Sidebar --- */
+        .cart-sidebar { position: fixed; top: 0; right: -450px; width: 400px; height: 100%; background: white; box-shadow: -5px 0 30px rgba(0,0,0,0.1); z-index: 3000; transition: right 0.4s cubic-bezier(0.19, 1, 0.22, 1); padding: 30px; display: flex; flex-direction: column; }
+        .cart-sidebar.active { right: 0; }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .cart-title { font-size: 1.5rem; font-weight: 700; }
+        .cart-items { flex: 1; overflow-y: auto; }
+        .cart-item { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #f5f5f5; padding-bottom: 20px; }
+        .cart-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; background: #f5f5f5; }
+        
+        /* No Results */
+        .no-results { text-align: center; width: 100%; padding: 40px; font-size: 1.1rem; color: #777; display: none; grid-column: 1/-1; }
+
+        /* --- Media Queries (Untuk Mobile & Tablet) --- */
+        @media (max-width: 1024px) {
+            /* Tablet: 2 Kolom */
+            .product-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            /* Mobile Navbar */
+            .navbar { padding: 15px 20px; flex-wrap: wrap; gap: 15px; }
+            .search-wrapper { order: 3; width: 100%; margin: 0; max-width: none; }
+            .nav-links { display: none; } 
+            
+            /* Mobile Grid: 1 Kolom */
+            .product-grid { grid-template-columns: 1fr; }
+            
+            .modal-content { flex-direction: column; width: 100%; height: 100%; border-radius: 0; }
+            .modal-left { height: 250px; flex: none; }
+            .cart-sidebar { width: 100%; }
+            .hero h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <header>
+        <nav class="navbar">
+            <a href="#home" class="logo">Rahata Store</a>
+            
+            <!-- Menu Links -->
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#collection">Collection</a></li>
+                <li><a href="#about">About Us</a></li>
+            </ul>
+
+            <!-- Search & Cart -->
+            <div class="search-wrapper">
+                <input type="text" id="search-input" class="search-input" placeholder="Cari hoodie..." onkeyup="searchProducts()">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+
+            <div class="nav-icons">
+                <button class="icon-btn" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Home / Hero -->
+    <section id="home" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Just Do It.<br>Style Your Way.</h1>
+            <p>Exclusive hoodie collection with premium quality for your active lifestyle.</p>
+            <a href="#collection" class="hero-btn">View Collection</a>
+        </div>
+    </section>
+
+    <!-- Collection -->
+    <section id="collection" class="section-padding">
+        <div class="section-header">
+            <div class="section-title">Our Collection</div>
+            <div class="section-subtitle">30+ Best Models This Year</div>
+        </div>
+        
+        <div class="product-grid" id="product-grid"></div>
+        <div id="no-results" class="no-results">Products not found.</div>
+    </section>
+
+    <!-- About Us -->
+    <section id="about" class="about-section">
+        <div class="about-container">
+            <div class="section-title" style="margin-bottom: 20px;">About Us</div>
+            <p class="about-text">
+                Rahata Store was founded with a passion for providing high-quality clothing that combines comfort and style. We believe that hoodies are not just warm clothing, but a lifestyle statement.
+            </p>
+            <div class="features">
+                <div class="feature-box">
+                    <i class="fas fa-gem"></i>
+                    <h3>Premium Quality</h3>
+                    <p>Durable premium materials.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fas fa-shipping-fast"></i>
+                    <h3>Fast Shipping</h3>
+                    <p>Fast delivery across Indonesia.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fas fa-tags"></i>
+                    <h3>Best Price</h3>
+                    <p>Competitive prices for distro quality.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div style="text-align:center; padding:40px; background:#111; color:white; margin-top:0;">
+        <p style="color:#999; font-size:0.9rem; margin-bottom:15px;">&copy; 2023 Rahata Store. All Rights Reserved.</p>
+        <button onclick="resetApp()" style="background:none; border:1px solid #444; padding:8px 16px; color:#777; cursor:pointer; font-size:0.8rem; border-radius:4px;">
+            Reset Data Stok (Admin)
+        </button>
+    </div>
+
+    <!-- Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-left" id="modal-img-container"></div>
+            <div class="modal-right">
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+                <h1 class="modal-h1" id="modal-title">Product Name</h1>
+                <p class="modal-meta" id="modal-category">Category</p>
+                <p class="modal-desc" id="modal-desc">Description...</p>
+                
+                <div class="modal-price-lg" id="modal-display-price">Rp 0</div>
+                <div id="stock-display" class="stock-display">Stok: 0</div>
+
+                <div class="form-group">
+                    <label>Pilih Warna</label>
+                    <select id="modal-color"></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Pilih Ukuran</label>
+                    <select id="modal-size" onchange="updatePrice()">
+                        <option value="S" data-extra="0">S</option>
+                        <option value="M" data-extra="0">M</option>
+                        <option value="L" data-extra="0">L</option>
+                        <option value="XL" data-extra="10000">XL (+Rp 10.000)</option>
+                        <option value="XXL" data-extra="20000">XXL (+Rp 20.000)</option>
+                    </select>
+                </div>
+
+                <button id="btn-add-cart" class="btn-black" onclick="addToCart()">Add to Bag</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <div class="cart-title">Keranjang</div>
+            <span onclick="toggleCart()" style="cursor:pointer; font-size:1.5rem">&times;</span>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <div style="border-top: 1px solid #eee; padding-top: 20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-weight:700; font-size:1.1rem;">
+                <span>Total</span>
+                <span id="cart-total">Rp 0</span>
+            </div>
+            <button class="btn-black" onclick="processCheckout()">Checkout & WhatsApp</button>
+            <p style="font-size:0.8rem; color:#757575; margin-top:10px; text-align:center;">*Stok berkurang otomatis.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. DATABASE PRODUK (SOLID/TETAP) ---
+        const catalog = [
+            { id: 1, name: "Hoodie Cotton", cat: "Lifestyle", price: 310000, desc: "Hoodie berbahan cotton premium yang lembut dan adem. Cocok untuk gaya santai sehari-hari dengan cutting modern." },
+            { id: 2, name: "Hoodie Fleece Premium", cat: "Winter", price: 350000, desc: "Bahan fleece tebal memberikan kehangatan maksimal. Pilihan tepat untuk cuaca dingin atau perjalanan malam." },
+            { id: 3, name: "Hoodie Oversized", cat: "Streetwear", price: 290000, desc: "Potongan oversized yang trendi. Memberikan siluet santai dan stylish ala streetwear kekinian." },
+            { id: 4, name: "Hoodie Zip", cat: "Sport", price: 325000, desc: "Hoodie dengan resleting depan yang praktis. Mudah dipakai dan dilepas, cocok untuk pemanasan sebelum olahraga." },
+            { id: 5, name: "Hoodie Tanpa Lengan", cat: "Gym", price: 250000, desc: "Desain sleeveless yang membebaskan gerak tangan. Favorit untuk latihan di gym atau basket." },
+            { id: 6, name: "Hoodie Sablon Depan", cat: "Graphic", price: 315000, desc: "Tampil beda dengan grafis sablon artistik di bagian depan. Tinta berkualitas tinggi yang awet." },
+            { id: 7, name: "Hoodie Rajut Tebal", cat: "Vintage", price: 420000, desc: "Tekstur rajutan unik memberikan kesan klasik dan elegan. Sangat nyaman dipakai." },
+            { id: 8, name: "Hoodie Bomber", cat: "Outerwear", price: 380000, desc: "Perpaduan gaya hoodie dan jaket bomber. Maskulin dan fungsional." },
+            { id: 9, name: "Hoodie Crop Top", cat: "Women", price: 275000, desc: "Potongan pendek (crop) yang chic. Pas dipadukan dengan celana high-waist." },
+            { id: 10, name: "Hoodie Reflektif", cat: "Night Run", price: 360000, desc: "Dilengkapi material pemantul cahaya. Aman dan keren untuk lari malam hari." },
+            { id: 11, name: "Hoodie Balaclava", cat: "Techwear", price: 340000, desc: "Hoodie dengan desain penutup wajah (balaclava) terintegrasi. Perlindungan total dari angin." },
+            { id: 12, name: "Hoodie Cotton 30s", cat: "Basic", price: 200000, desc: "Bahan tipis dan ringan (30s). Sangat cocok untuk iklim tropis yang panas." },
+            { id: 13, name: "Hoodie Tie-Dye", cat: "Artistic", price: 330000, desc: "Motif tie-dye buatan tangan. Setiap helai memiliki corak unik yang tidak sama." },
+            { id: 14, name: "Hoodie Waterproof", cat: "Outdoor", price: 450000, desc: "Bahan tahan air intensitas ringan. Melindungi tubuh agar tetap kering saat gerimis." },
+            { id: 15, name: "Hoodie Boxy", cat: "Streetwear", price: 305000, desc: "Potongan kotak yang tegas. Memberikan struktur pada bahu dan badan." },
+            { id: 16, name: "Hoodie Tanpa Tali", cat: "Minimalist", price: 280000, desc: "Desain bersih tanpa tali serut di tudung. Simpel dan elegan." },
+            { id: 17, name: "Hoodie Cotton 20s", cat: "Basic", price: 230000, desc: "Ketebalan medium (20s). Awet dan tidak mudah melar meski sering dicuci." },
+            { id: 18, name: "Hoodie Cotton 24s", cat: "Standard", price: 260000, desc: "Standar kualitas distro. Permukaan halus dan menyerap keringat dengan baik." },
+            { id: 19, name: "Hoodie V-Neck", cat: "Casual", price: 295000, desc: "Inovasi kerah V pada hoodie. Memberikan kesan leher lebih jenjang." },
+            { id: 20, name: "Washed Hoodie", cat: "Vintage", price: 375000, desc: "Efek warna pudar (washed) yang estetik. Memberikan kesan 'worn-in' yang keren sejak awal." },
+            { id: 21, name: "Hoodie Tudung Ganda", cat: "Layering", price: 390000, desc: "Desain seolah memakai dua lapis hoodie. Hangat dan penuh gaya." },
+            { id: 22, name: "Hoodie Jogging", cat: "Sport", price: 300000, desc: "Bahan breathable khusus untuk pelari. Menjaga sirkulasi udara tubuh." },
+            { id: 23, name: "Hoodie Lubang Jempol", cat: "Active", price: 310000, desc: "Fitur thumbhole menjaga lengan baju tetap di tempat saat bergerak aktif." },
+            { id: 24, name: "Hoodie Striped", cat: "Pattern", price: 320000, desc: "Motif garis klasik yang tidak lekang oleh waktu." },
+            { id: 25, name: "Hoodie Bulu Halus", cat: "Luxury", price: 410000, desc: "Bahan faux fur super lembut. Sensasi nyaman seperti dipeluk selimut." },
+            { id: 26, name: "Hoodie Baseball", cat: "Sport", price: 330000, desc: "Desain raglan dua warna ala seragam baseball." },
+            { id: 27, name: "Hoodie Sablon Belakang", cat: "Graphic", price: 340000, desc: "Statement grafis besar di bagian punggung untuk tampil mencolok." },
+            { id: 28, name: "Hoodie Pullover", cat: "Classic", price: 270000, desc: "Model klasik tanpa resleting. Pilihan aman untuk segala situasi." },
+            { id: 29, name: "Hoodie Saku Resleting", cat: "Utility", price: 355000, desc: "Saku dilengkapi resleting untuk keamanan barang bawaan seperti HP/Kunci." },
+            { id: 30, name: "Hoodie Motif Kamuflase", cat: "Military", price: 365000, desc: "Motif camo untuk tampilan maskulin dan tangguh." }
+        ];
+
+        // Format Rupiah
+        const fmt = (n) => 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        
+        // Storage Keys (Versi 8 untuk reset otomatis)
+        const KEY_PROD = 'rahata_fixed_v8';
+        const KEY_CART = 'rahata_cart_v8';
+
+        let products = [];
+        let cart = JSON.parse(localStorage.getItem(KEY_CART)) || [];
+        let currentProduct = null;
+
+        // --- INIT ---
+        function init() {
+            const saved = localStorage.getItem(KEY_PROD);
+            if (saved) {
+                products = JSON.parse(saved);
+                // Integrity check: jika harga produk pertama beda dengan katalog, reset
+                if (products[0].price !== 310000) resetData();
+            } else {
+                resetData();
+            }
+            renderGrid(products);
+            updateCartBadge();
+            updateCartList();
+        }
+
+        function resetData() {
+            products = catalog.map(item => ({
+                ...item,
+                stock: Math.floor(Math.random() * 15) + 5, // Stok awal 5-20
+                colors: ['Hitam', 'Putih', 'Abu-abu', 'Navy']
+            }));
+            saveProducts();
+        }
+
+        function saveProducts() {
+            localStorage.setItem(KEY_PROD, JSON.stringify(products));
+        }
+
+        function saveCart() {
+            localStorage.setItem(KEY_CART, JSON.stringify(cart));
+            updateCartBadge();
+        }
+
+        // --- RENDER & SEARCH ---
+        function renderGrid(data) {
+            const grid = document.getElementById('product-grid');
+            const noRes = document.getElementById('no-results');
+            grid.innerHTML = '';
+
+            if (data.length === 0) {
+                noRes.style.display = 'block';
+                return;
+            }
+            noRes.style.display = 'none';
+
+            data.forEach(p => {
+                const imgPath = `static/images/hoodie${p.id}.jpg`;
+                let badge = '';
+                if(p.stock <= 0) badge = '<span class="stock-badge out">Habis</span>';
+                else if(p.stock < 5) badge = `<span class="stock-badge" style="color:orange">Sisa ${p.stock}</span>`;
+
+                const div = document.createElement('div');
+                div.className = 'product-card';
+                div.onclick = () => openModal(p.id);
+                div.innerHTML = `
+                    <div class="product-image">
+                        ${badge}
+                        <img src="${imgPath}" onerror="this.style.display='none'; this.parentElement.innerHTML+='<div class=\\'placeholder-icon\\'><i class=\\'fas fa-shirt\\'></i></div>'">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">${p.name}</div>
+                        <div class="product-category">${p.cat}</div>
+                        <div class="product-price">${fmt(p.price)}</div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            renderGrid(filtered);
+        }
+
+        // --- MODAL LOGIC ---
+        function openModal(id) {
+            const p = products.find(x => x.id === id);
+            currentProduct = p;
+            
+            document.getElementById('modal-title').innerText = p.name;
+            document.getElementById('modal-category').innerText = p.cat;
+            document.getElementById('modal-desc').innerText = p.desc;
+            document.getElementById('modal-display-price').innerText = fmt(p.price);
+            
+            const imgWrap = document.getElementById('modal-img-container');
+            const imgPath = `static/images/hoodie${p.id}.jpg`;
+            imgWrap.innerHTML = `<img src="${imgPath}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'placeholder-icon\\'><i class=\\'fas fa-shirt\\'></i></div>'">`;
+
+            const btn = document.getElementById('btn-add-cart');
+            const stockInfo = document.getElementById('stock-display');
+            
+            if(p.stock > 0) {
+                stockInfo.innerText = `Stok Tersedia: ${p.stock}`;
+                stockInfo.className = p.stock < 5 ? 'stock-display low' : 'stock-display ok';
+                btn.disabled = false;
+                btn.innerText = "Add to Bag";
+                btn.style.background = "black";
+            } else {
+                stockInfo.innerText = "Stok Habis";
+                stockInfo.className = 'stock-display out';
+                btn.disabled = true;
+                btn.innerText = "Sold Out";
+                btn.style.background = "#ccc";
+            }
+
+            const selColor = document.getElementById('modal-color');
+            selColor.innerHTML = '';
+            p.colors.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c; opt.innerText = c;
+                selColor.appendChild(opt);
+            });
+
+            document.getElementById('modal-size').value = "S";
+            updatePrice();
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        function updatePrice() {
+            if(!currentProduct) return;
+            const sizeEl = document.getElementById('modal-size');
+            const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
+            document.getElementById('modal-display-price').innerText = fmt(currentProduct.price + extra);
+        }
+
+        // --- CART LOGIC ---
+        function addToCart() {
+            if(!currentProduct || currentProduct.stock <= 0) {
+                alert("Maaf, stok habis.");
+                return;
+            }
+            const sizeEl = document.getElementById('modal-size');
+            const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
+            
+            const item = {
+                cartId: Date.now(),
+                pid: currentProduct.id,
+                name: currentProduct.name,
+                price: currentProduct.price + extra,
+                size: sizeEl.value,
+                color: document.getElementById('modal-color').value
+            };
+            
+            cart.push(item);
+            saveCart();
+            updateCartList();
+            closeModal();
+            toggleCart();
+        }
+
+        function removeFromCart(cid) {
+            cart = cart.filter(c => c.cartId !== cid);
+            saveCart();
+            updateCartList();
+        }
+
+        function updateCartBadge() {
+            document.getElementById('cart-count').innerText = cart.length;
+        }
+
+        function updateCartList() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            container.innerHTML = '';
+            
+            if(cart.length === 0) {
+                container.innerHTML = '<div style="text-align:center; margin-top:40px; color:#999">Keranjang kosong</div>';
+                totalEl.innerText = fmt(0);
+                return;
+            }
+
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price;
+                const imgPath = `static/images/hoodie${item.pid}.jpg`;
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <img src="${imgPath}" onerror="this.src='https://via.placeholder.com/80'">
+                    <div style="flex:1">
+                        <div style="font-weight:600; font-size:0.9rem">${item.name}</div>
+                        <div style="font-size:0.8rem; color:#666">${item.color} | ${item.size}</div>
+                        <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                            <span style="font-weight:600; font-size:0.9rem">${fmt(item.price)}</span>
+                            <span onclick="removeFromCart(${item.cartId})" style="color:red; cursor:pointer; font-size:0.8rem">Hapus</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            totalEl.innerText = fmt(total);
+        }
+
+        function toggleCart() {
+            document.getElementById('cartSidebar').classList.toggle('active');
+        }
+
+        function processCheckout() {
+            if(cart.length === 0) return alert("Keranjang kosong");
+            
+            cart.forEach(c => {
+                const p = products.find(x => x.id === c.pid);
+                if(p && p.stock > 0) p.stock--;
+            });
+            saveProducts();
+
+            let msg = "Halo Rahata Store, pesanan saya:\n\n";
+            let total = 0;
+            cart.forEach((c, i) => {
+                msg += `${i+1}. ${c.name} (${c.color}, ${c.size}) - ${fmt(c.price)}\n`;
+                total += c.price;
+            });
+            msg += `\n*Total: ${fmt(total)}*`;
+            
+            const url = `https://wa.me/6287785913689?text=${encodeURIComponent(msg)}`;
+            
+            cart = [];
+            saveCart();
+            updateCartList();
+            renderGrid(products);
+            toggleCart();
+            
+            window.open(url, '_blank');
+        }
+
+        function resetApp() {
+            if(confirm("Reset data stok?")) {
+                localStorage.removeItem(KEY_PROD);
+                localStorage.removeItem(KEY_CART);
+                location.reload();
+            }
+        }
+
+        window.onclick = (e) => { if(e.target == document.getElementById('productModal')) closeModal(); }
+        
+        // Start
+        init();
+    </script>
+</body>
+</html>
