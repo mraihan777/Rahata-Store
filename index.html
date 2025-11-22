@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rahata Store | Real-time Database</title>
+    <title>Rahata Store | Premium Hoodies</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     
@@ -94,7 +94,7 @@
         .admin-form input, .admin-form select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
         .admin-form-full { grid-column: 1 / -1; }
 
-        /* --- Footer, FAQ & About Features (FIXED) --- */
+        /* --- Footer, FAQ & About Features --- */
         .faq-wrap, .about-wrap { max-width: 800px; margin: 60px auto; padding: 0 20px; }
         .faq-item { border-bottom: 1px solid #eee; padding: 20px 0; }
         .faq-question { font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
@@ -103,7 +103,6 @@
         .faq-icon { transition: 0.3s; }
         .faq-item.active .faq-icon { transform: rotate(180deg); }
 
-        /* CSS Features */
         .features { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; text-align: center; margin-top: 30px; }
         .feature-box { flex: 1; min-width: 200px; padding: 20px; background: var(--gray); border-radius: 8px; display: flex; flex-direction: column; align-items: center; }
         .feature-box i { font-size: 2rem; margin-bottom: 15px; color: var(--primary); }
@@ -114,11 +113,9 @@
         .footer-section h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: #fff; text-transform: uppercase; }
         .footer-section p, .footer-section a { color: #999; font-size: 0.9rem; line-height: 1.8; text-decoration: none; display: block; margin-bottom: 8px; transition: 0.2s; }
         .footer-section a:hover { color: #fff; }
-        /* Social Media Icons Color Hover */
         .footer-section a:hover .fa-instagram { color: #E1306C; }
         .footer-section a:hover .fa-tiktok { color: #00f2ea; }
         .footer-section a:hover .fa-facebook { color: #4267B2; }
-        
         .footer-bottom { border-top: 1px solid #333; padding-top: 20px; text-align: center; color: #555; font-size: 0.8rem; }
 
         /* --- Modals --- */
@@ -151,8 +148,8 @@
         .btn-black:hover { background: #333; }
         .btn-black:disabled { background: #ccc; cursor: not-allowed; }
 
-        /* Loader */
-        #loader { text-align: center; padding: 40px; font-weight: bold; color: #555; display: none; }
+        /* LOADING OVERLAY */
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.2rem; }
 
         @media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) {
@@ -171,6 +168,9 @@
     </style>
 </head>
 <body>
+
+    <!-- LOADING -->
+    <div id="loading-overlay">Connecting to Store...</div>
 
     <!-- Navbar -->
     <header>
@@ -210,14 +210,13 @@
         <section class="hero">
             <div class="hero-overlay"></div>
             <div class="hero-content">
-                <h1>Just Wear It.<br>Style Your Way.</h1>
+                <h1>Just Do It.<br>Style Your Way.</h1>
                 <p>Exclusive hoodie collection with premium quality for your active lifestyle.</p>
             </div>
         </section>
         <div class="container">
             <div class="section-title">Best Sellers</div>
             <div class="section-desc">This week's favorites</div>
-            <div id="loader-home" style="text-align:center; padding:20px;">Loading Data...</div>
             <div class="product-grid" id="home-grid"></div>
             <div style="text-align:center; margin-bottom:60px;">
                 <button class="btn-black" style="width:auto; padding: 12px 40px;" onclick="switchPage('products')">View All Products</button>
@@ -240,12 +239,10 @@
                 </div>
                 <button class="btn-black" style="background: var(--admin-color); width: auto; padding: 10px 20px;" onclick="addNewProduct()">+ Add Product</button>
                 <button class="btn-black" style="background: #555; width: auto; padding: 10px 20px;" onclick="handleLogout()">Logout Admin</button>
-                <button class="btn-black" style="background: var(--success); width: auto; padding: 10px 20px;" onclick="resetDatabase()">Reset / Seed Database</button>
             </div>
 
             <div class="section-title">All Products</div>
             <div class="section-desc">Find your best style from exclusive choices.</div>
-            <div id="loader-products" style="text-align:center; padding:20px;">Loading Real-time Data...</div>
             <div class="product-grid" id="products-grid"></div>
             <div id="no-results" style="text-align:center; display:none; padding:40px; color:#777;">No products found.</div>
         </div>
@@ -256,7 +253,6 @@
         <div class="container" style="padding-top: 40px;">
             <div class="section-title" style="color: var(--danger);">Flash Sale</div>
             <div class="section-desc">Limited offers on selected items.</div>
-            <div id="loader-sale" style="text-align:center; padding:20px;">Loading Deals...</div>
             <div class="product-grid" id="sale-grid"></div>
         </div>
     </div>
@@ -309,12 +305,12 @@
                 <p><i class="far fa-envelope"></i> support@rahatastore.com</p>
                 <p><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</p>
             </div>
-            <!-- NEW: SOCIAL MEDIA SECTION -->
+            <!-- SOCIAL MEDIA SECTION -->
             <div class="footer-section">
                 <h3>Follow Us</h3>
-                <p><i class="fab fa-instagram"></i> <a href="https://www.instagram.com/ra1hannnnnnnnn/" target="_blank" style="display:inline;">@ra1hannnnnnnnn</a></p>
-                <p><i class="fab fa-tiktok"></i> <a href="https://www.tiktok.com/@n0nchalant777" target="_blank" style="display:inline;">@n0nchalant777</a></p>
-                <p><i class="fab fa-facebook"></i> <a href="https://www.facebook.com/profile.php?id=100033432427397" target="_blank" style="display:inline;">Nrea</a></p>
+                <p><i class="fab fa-instagram"></i> <a href="https://instagram.com/" target="_blank" style="display:inline;">@rahatastore</a></p>
+                <p><i class="fab fa-tiktok"></i> <a href="https://tiktok.com/" target="_blank" style="display:inline;">@rahatastore</a></p>
+                <p><i class="fab fa-facebook"></i> <a href="https://facebook.com/" target="_blank" style="display:inline;">Rahata Store</a></p>
             </div>
         </div>
         <div class="footer-bottom">
@@ -376,118 +372,215 @@
         </div>
     </div>
 
-    <!-- FIREBASE MODULES -->
     <script type="module">
+        // --- FIREBASE SETUP ---
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
-        import { getAuth, signInAnonymously, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
 
-        // --- CONFIG ---
-        const fmt = (n) => 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        const KEY_CART = 'rahata_cart_v19'; // Cart still local
-        const ADMIN_USER = "admin"; 
-        const ADMIN_PASS = "mhmdrhn777";
+        // Default App ID fallback
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'rahata-store';
         
-        let products = [], cart = JSON.parse(localStorage.getItem(KEY_CART)) || [], currentProduct = null;
-        let isAdmin = false;
-
-        // --- CATALOG DATA (For Seed Only) ---
-        const initialCatalog = [
-            { id: 1, name: "Hoodie Cotton", cat: "Lifestyle", price: 310000, desc: "Pure comfort with 100% premium cotton. Soft, cool, and perfect for daily use.", colors: ['Black', 'Grey', 'Navy'], stock: 10 },
-            { id: 2, name: "Hoodie Fleece Premium", cat: "Winter", price: 350000, originalPrice: 450000, desc: "Maximum warmth with thick fleece material. Perfect for cold weather without sacrificing style. (SALE ITEM)", colors: ['Grey', 'Black', 'Cream'], stock: 5 },
-            { id: 3, name: "Hoodie Oversized", cat: "Streetwear", price: 290000, desc: "Look trendy with a relaxed oversized cut. A streetwear essential you must have.", colors: ['White', 'Black', 'Brown'], stock: 8 },
-            { id: 4, name: "Hoodie Zip", cat: "Sport", price: 325000, desc: "Practical and stylish. Zip-up hoodie with a classic design easily paired with any outfit.", colors: ['Navy', 'Black', 'Red'], stock: 12 },
-            { id: 5, name: "Sleeveless Hoodie", cat: "Gym", price: 250000, originalPrice: 300000, desc: "Free your movement during workouts or hanging out. Masculine and sporty sleeveless cut. (SALE ITEM)", colors: ['Red', 'Black', 'Blue'], stock: 6 },
-            { id: 6, name: "Front Print Hoodie", cat: "Graphic", price: 315000, desc: "Express yourself with high-quality front graphic print. Durable and long-lasting.", colors: ['Green', 'Black', 'White'], stock: 15 }
-        ];
-
-        // --- FIREBASE INIT ---
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        let productsColRef;
-
-        async function initAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                // Once authenticated, setup listeners
-                productsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
-                setupRealtimeListener();
-            } catch (error) {
-                console.error("Auth failed:", error);
-            }
+        // Try parse config, alert if missing
+        let firebaseConfig;
+        try {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } catch (e) {
+            console.error("Firebase config missing. Running in offline/demo mode (not synced).");
         }
 
-        function setupRealtimeListener() {
-            onSnapshot(productsColRef, (snapshot) => {
-                if(snapshot.empty) {
-                    // If empty, user can trigger seed manually or we just show empty
-                    document.getElementById('loader-home').innerText = "Database empty. Admin login to Seed.";
-                    products = [];
+        let db, auth, user;
+        let products = []; 
+        const KEY_CART = 'rahata_cart_v19';
+        let cart = JSON.parse(localStorage.getItem(KEY_CART)) || [];
+        let currentProduct = null;
+        let isAdmin = false;
+        
+        // ADMIN CREDENTIALS (UI ONLY)
+        const ADMIN_USER = "admin"; 
+        const ADMIN_PASS = "mhmdrhn777";
+
+        // --- CATALOG DATA (SEED) ---
+        const initialCatalog = [
+            { id: 1, name: "Hoodie Cotton", cat: "Lifestyle", price: 310000, desc: "Pure comfort with 100% premium cotton. Soft, cool, and perfect for daily use.", colors: ['Black', 'Grey', 'Navy'], stock: 10 },
+            { id: 2, name: "Hoodie Fleece Premium", cat: "Winter", price: 350000, originalPrice: 450000, desc: "Maximum warmth with thick fleece material. Perfect for cold weather without sacrificing style.", colors: ['Grey', 'Black', 'Cream'], stock: 8 },
+            { id: 3, name: "Hoodie Oversized", cat: "Streetwear", price: 290000, desc: "Look trendy with a relaxed oversized cut. A streetwear essential you must have.", colors: ['White', 'Black', 'Brown'], stock: 15 },
+            { id: 4, name: "Hoodie Zip", cat: "Sport", price: 325000, desc: "Practical and stylish. Zip-up hoodie with a classic design easily paired with any outfit.", colors: ['Navy', 'Black', 'Red'], stock: 5 },
+            { id: 5, name: "Sleeveless Hoodie", cat: "Gym", price: 250000, originalPrice: 300000, desc: "Free your movement during workouts or hanging out. Masculine and sporty sleeveless cut.", colors: ['Red', 'Black', 'Blue'], stock: 12 },
+            { id: 6, name: "Front Print Hoodie", cat: "Graphic", price: 315000, desc: "Express yourself with high-quality front graphic print. Durable and long-lasting.", colors: ['Green', 'Black', 'White'], stock: 7 },
+            { id: 7, name: "Chunky Knit Hoodie", cat: "Vintage", price: 420000, desc: "Unique knit texture for a classy vintage look. Very warm and comfortable.", colors: ['Cream', 'Brown', 'Maroon'], stock: 4 },
+            { id: 8, name: "Hoodie Bomber", cat: "Outerwear", price: 380000, originalPrice: 500000, desc: "Cool fusion between a hoodie and a bomber jacket. Manly look for the modern man.", colors: ['Light Blue', 'Black', 'Army Green'], stock: 6 },
+            { id: 9, name: "Hoodie Crop Top", cat: "Women", price: 275000, desc: "Chic crop cut for active women. Matches perfectly with high-waist jeans.", colors: ['Pink', 'White', 'Black'], stock: 10 },
+            { id: 10, name: "Reflective Hoodie", cat: "Night Run", price: 360000, desc: "Stay visible at night. Reflective accents that glow when hit by light, safe and cool.", colors: ['Black', 'Grey'], stock: 8 }
+        ];
+
+        // --- INIT ---
+        async function init() {
+            if (firebaseConfig) {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Auth error:", error);
+                }
+                
+                onAuthStateChanged(auth, (u) => {
+                    if (u) {
+                        user = u;
+                        document.getElementById('loading-overlay').style.display = 'none';
+                        subscribeToProducts();
+                    }
+                });
+            } else {
+                // Fallback if no firebase config (e.g. local without setup)
+                products = initialCatalog;
+                document.getElementById('loading-overlay').style.display = 'none';
+                renderAllGrids();
+            }
+
+            // Admin session persistence check
+            if (sessionStorage.getItem('rahata_admin') === 'true') enableAdminMode();
+            updateCartBadge();
+            updateCartList();
+        }
+
+        // --- FIRESTORE SYNC ---
+        function subscribeToProducts() {
+            // Use PUBLIC collection for shared store data
+            const q = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+            
+            onSnapshot(q, (snapshot) => {
+                const fetched = [];
+                snapshot.forEach((doc) => {
+                    fetched.push(doc.data());
+                });
+
+                if (fetched.length === 0) {
+                    // First time? Seed data.
+                    seedInitialData();
                 } else {
-                    products = snapshot.docs.map(doc => ({ id: parseInt(doc.id), ...doc.data() }));
-                    // Sort by ID to keep order
-                    products.sort((a,b) => a.id - b.id);
+                    // Sort by ID to keep order consistent
+                    products = fetched.sort((a, b) => a.id - b.id);
                     renderAllGrids();
-                    hideLoaders();
                 }
             }, (error) => {
-                console.error("Data fetch error:", error);
-                document.getElementById('loader-home').innerText = "Error loading data.";
+                console.error("Error fetching products:", error);
             });
         }
 
-        // Expose functions to global window for HTML onclick handlers
-        window.resetDatabase = async function() {
-            if(!confirm("Warning: This will overwrite the online database with default items. Continue?")) return;
-            
-            // Delete existing (simplified for this demo, usually we batch delete)
-            for (let p of products) {
-                await deleteDoc(doc(productsColRef, p.id.toString()));
+        async function seedInitialData() {
+            console.log("Seeding initial data...");
+            for (const p of initialCatalog) {
+                await saveProductToFirestore(p);
             }
-
-            // Upload initial
-            for (let item of initialCatalog) {
-                await setDoc(doc(productsColRef, item.id.toString()), item);
-            }
-            alert("Database reset to defaults!");
         }
 
+        async function saveProductToFirestore(product) {
+            if (!db) return;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'products', product.id.toString());
+            await setDoc(docRef, product);
+        }
+
+        async function deleteProductFromFirestore(id) {
+            if (!db) return;
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id.toString()));
+        }
+
+        // --- MAIN LOGIC ---
+        const fmt = (n) => 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        
+        function renderAllGrids() {
+            renderGrid(products.slice(0, 3), 'home-grid');
+            renderGrid(products, 'products-grid');
+            const saleItems = products.filter(p => p.originalPrice);
+            renderGrid(saleItems, 'sale-grid');
+        }
+
+        function renderGrid(data, elementId) {
+            const grid = document.getElementById(elementId);
+            grid.innerHTML = '';
+            data.forEach(p => {
+                const imgPath = `static/images/hoodie${p.id}.jpg`;
+                let badge = p.stock <= 0 ? '<span class="stock-badge" style="color:red">Sold Out</span>' : (p.stock < 5 ? '<span class="stock-badge" style="color:orange">Only ' + p.stock + ' Left</span>' : '');
+                let priceHtml = `<div class="product-price">${fmt(p.price)}</div>`;
+                if (p.originalPrice) {
+                    badge += '<span class="sale-badge">SALE</span>';
+                    priceHtml = `<div class="product-price-wrap"><div class="product-discount-price">${fmt(p.price)}</div><div class="product-old-price">${fmt(p.originalPrice)}</div></div>`;
+                }
+                
+                // ADMIN BUTTONS
+                let adminHtml = isAdmin ? `
+                    <div class="admin-controls">
+                        <button class="btn-admin-edit" data-id="${p.id}">Edit</button>
+                        <button class="btn-admin-stock" data-id="${p.id}">+ Stock</button>
+                        <button class="btn-admin-sale" data-id="${p.id}">Sale</button>
+                        <button class="btn-admin-delete" data-id="${p.id}">Delete</button>
+                    </div>` : '';
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => openModal(p.id);
+                card.innerHTML = `
+                    <div class="product-image">${badge}<img src="${imgPath}" onerror="this.style.display='none'"></div>
+                    <div class="product-info">
+                        <div class="product-title">${p.name}</div>
+                        <div class="product-category">${p.cat}</div>
+                        ${priceHtml}
+                        ${adminHtml}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Re-attach admin event listeners because innerHTML wipes them
+            if (isAdmin) attachAdminListeners(elementId);
+        }
+
+        function attachAdminListeners(gridId) {
+            const grid = document.getElementById(gridId);
+            grid.querySelectorAll('.btn-admin-edit').forEach(b => b.onclick = (e) => { e.stopPropagation(); editProduct(parseInt(b.dataset.id)); });
+            grid.querySelectorAll('.btn-admin-stock').forEach(b => b.onclick = (e) => { e.stopPropagation(); addStock(parseInt(b.dataset.id)); });
+            grid.querySelectorAll('.btn-admin-sale').forEach(b => b.onclick = (e) => { e.stopPropagation(); editSale(parseInt(b.dataset.id)); });
+            grid.querySelectorAll('.btn-admin-delete').forEach(b => b.onclick = (e) => { e.stopPropagation(); deleteProduct(parseInt(b.dataset.id)); });
+        }
+
+        // --- ADMIN FUNCTIONS (UPDATED FOR FIREBASE) ---
         window.addNewProduct = async function() {
             const name = document.getElementById('new-name').value;
             const cat = document.getElementById('new-cat').value;
             const price = parseInt(document.getElementById('new-price').value);
             const stock = parseInt(document.getElementById('new-stock').value);
             const desc = document.getElementById('new-desc').value;
-            const sale = document.getElementById('new-sale-price').value;
-
+            
             if (!name || !price) return alert("Name and Price are required!");
             
+            // Generate new ID
             const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
             
-            const newItem = { 
+            const newProd = { 
                 id: newId, 
-                name, cat, price, stock, desc, 
-                colors:['Black','White'],
-                ...(sale ? { originalPrice: price, price: parseInt(sale) } : {}) 
+                name, 
+                cat, 
+                price, 
+                stock, 
+                desc, 
+                colors: ['Black','White'] // Default
             };
 
-            await setDoc(doc(productsColRef, newId.toString()), newItem);
-            alert("Product added to Cloud!");
-            // No need to render, onSnapshot will do it
+            await saveProductToFirestore(newProd);
+            alert("Product added (Synced to everyone)!");
         }
 
         window.deleteProduct = async function(id) {
             if(confirm("Delete this product for EVERYONE?")) {
-                await deleteDoc(doc(productsColRef, id.toString()));
+                await deleteProductFromFirestore(id);
             }
         }
 
@@ -495,58 +588,46 @@
             const p = products.find(x => x.id === id);
             const newPrice = prompt("New Price:", p.price);
             if (newPrice) { 
-                await updateDoc(doc(productsColRef, id.toString()), { price: parseInt(newPrice) });
+                p.price = parseInt(newPrice); 
+                await saveProductToFirestore(p); 
             }
         }
 
-        window.addStock = async function(id) {
-            const p = products.find(x => x.id === id);
-            const quantity = prompt(`Current Stock: ${p.stock}\nHow much to add? (Use negative to remove)`, "10");
-            if (quantity !== null) {
-                const qty = parseInt(quantity);
-                if (!isNaN(qty)) {
-                    const newStock = Math.max(0, p.stock + qty);
-                    await updateDoc(doc(productsColRef, id.toString()), { stock: newStock });
-                }
-            }
-        }
-        
         window.editSale = async function(id) {
             const p = products.find(x => x.id === id);
             const salePrice = prompt(`Enter SALE price for ${p.name} (Normal: ${fmt(p.originalPrice || p.price)}). Enter 0 to remove sale.`);
             if (salePrice !== null) {
                 const newSale = parseInt(salePrice);
                 if (newSale > 0) {
-                    const updates = { price: newSale };
-                    if(!p.originalPrice) updates.originalPrice = p.price;
-                    await updateDoc(doc(productsColRef, id.toString()), updates);
+                    if(!p.originalPrice) p.originalPrice = p.price;
+                    p.price = newSale;
                 } else {
                     if(p.originalPrice) {
-                        await updateDoc(doc(productsColRef, id.toString()), {
-                            price: p.originalPrice,
-                            originalPrice: null // In firestore use deleteField() usually, but null works for simple logic
-                        });
+                        p.price = p.originalPrice;
+                        delete p.originalPrice; // Remove field
                     }
+                }
+                await saveProductToFirestore(p);
+            }
+        }
+
+        window.addStock = async function(id) {
+            const p = products.find(x => x.id === id);
+            const quantity = prompt(`Current Global Stock: ${p.stock}\nAdd how many? (Use negative to reduce)`, "10");
+            if (quantity !== null) {
+                const qty = parseInt(quantity);
+                if (!isNaN(qty)) {
+                    p.stock += qty;
+                    if (p.stock < 0) p.stock = 0;
+                    await saveProductToFirestore(p);
+                    alert(`Stock updated to ${p.stock} for all users.`);
+                } else {
+                    alert("Invalid number");
                 }
             }
         }
 
-        // --- LOCAL CART & UI ---
-        
-        function hideLoaders() {
-            document.getElementById('loader-home').style.display = 'none';
-            document.getElementById('loader-products').style.display = 'none';
-            document.getElementById('loader-sale').style.display = 'none';
-        }
-
-        window.renderAllGrids = function() {
-            renderGrid(products.slice(0, 3), 'home-grid');
-            renderGrid(products, 'products-grid');
-            const saleItems = products.filter(p => p.originalPrice);
-            renderGrid(saleItems, 'sale-grid');
-        }
-
-        // LOGIN MODAL
+        // --- ADMIN AUTH ---
         window.openLoginModal = function() {
             if (isAdmin) {
                 handleLogout();
@@ -569,66 +650,41 @@
             const err = document.getElementById('login-error-msg');
 
             if (user === ADMIN_USER && pass === ADMIN_PASS) {
-                isAdmin = true;
-                sessionStorage.setItem('rahata_admin', 'true');
-                document.body.classList.add('admin-active');
-                const btn = document.getElementById('admin-btn');
-                if(btn) { btn.classList.add('active-admin'); btn.title = "Logout Admin"; }
+                enableAdminMode();
                 closeLoginModal();
                 switchPage('products');
-                renderAllGrids();
             } else {
                 err.style.display = 'block';
                 err.innerText = "Wrong Username or Password";
             }
         }
         
+        function enableAdminMode() {
+            isAdmin = true;
+            sessionStorage.setItem('rahata_admin', 'true');
+            document.body.classList.add('admin-active');
+            const btn = document.getElementById('admin-btn');
+            if(btn) {
+                btn.classList.add('active-admin');
+                btn.title = "Logout Admin";
+            }
+            renderAllGrids();
+        }
+
         window.handleLogout = function() {
             if(!confirm("Logout from Admin mode?")) return;
             isAdmin = false;
             sessionStorage.removeItem('rahata_admin');
             document.body.classList.remove('admin-active');
             const btn = document.getElementById('admin-btn');
-            if(btn) { btn.classList.remove('active-admin'); btn.title = "Admin Login"; }
+            if(btn) {
+                btn.classList.remove('active-admin');
+                btn.title = "Admin Login";
+            }
             renderAllGrids();
         }
 
-        // Standard Functions
-        window.renderGrid = function(data, elementId) {
-            const grid = document.getElementById(elementId);
-            if(!grid) return;
-            grid.innerHTML = '';
-            data.forEach(p => {
-                const imgPath = `static/images/hoodie${p.id}.jpg`;
-                let badge = p.stock <= 0 ? '<span class="stock-badge out">Sold Out</span>' : (p.stock < 5 ? '<span class="stock-badge" style="color:orange">Only ' + p.stock + ' Left</span>' : '');
-                let priceHtml = `<div class="product-price">${fmt(p.price)}</div>`;
-                if (p.originalPrice) {
-                    badge += '<span class="sale-badge">SALE</span>';
-                    priceHtml = `<div class="product-price-wrap"><div class="product-discount-price">${fmt(p.price)}</div><div class="product-old-price">${fmt(p.originalPrice)}</div></div>`;
-                }
-                
-                let adminHtml = isAdmin ? `
-                    <div class="admin-controls">
-                        <button class="btn-admin-edit" onclick="event.stopPropagation(); editProduct(${p.id})">Edit</button>
-                        <button class="btn-admin-stock" onclick="event.stopPropagation(); addStock(${p.id})">+ Stock</button>
-                        <button class="btn-admin-sale" onclick="event.stopPropagation(); editSale(${p.id})">Sale</button>
-                        <button class="btn-admin-delete" onclick="event.stopPropagation(); deleteProduct(${p.id})">Del</button>
-                    </div>` : '';
-
-                grid.innerHTML += `
-                    <div class="product-card" onclick="openModal(${p.id})">
-                        <div class="product-image">${badge}<img src="${imgPath}" onerror="this.style.display='none'"></div>
-                        <div class="product-info">
-                            <div class="product-title">${p.name}</div>
-                            <div class="product-category">${p.cat}</div>
-                            ${priceHtml}
-                            ${adminHtml}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
+        // --- UI HELPERS ---
         window.switchPage = function(pid) {
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
@@ -637,7 +693,7 @@
             if(nav) nav.classList.add('active');
             window.scrollTo(0,0);
         }
-
+        
         window.toggleFaq = function(el) { el.classList.toggle('active'); }
         
         window.handleSearch = function() {
@@ -647,6 +703,10 @@
             renderGrid(f, 'products-grid');
             document.getElementById('no-results').style.display = f.length === 0 ? 'block' : 'none';
         }
+
+        // --- CART & MODAL LOGIC (Local Storage is fine for Cart) ---
+        window.saveCart = function() { localStorage.setItem(KEY_CART, JSON.stringify(cart)); updateCartBadge(); }
+        window.updateCartBadge = function() { document.getElementById('cart-count').innerText = cart.length; }
 
         window.openModal = function(id) {
             const p = products.find(x => x.id === id);
@@ -697,7 +757,7 @@
             const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
             document.querySelector('#modal-price-container span').innerText = fmt(currentProduct.price + extra);
         }
-
+        
         window.addToCart = function() {
             if(!currentProduct || currentProduct.stock <= 0) return alert("Stock empty.");
             const sizeEl = document.getElementById('modal-size');
@@ -714,11 +774,9 @@
             saveCart(); updateCartList(); closeModal(); toggleCart();
         }
 
-        function saveCart() { localStorage.setItem(KEY_CART, JSON.stringify(cart)); updateCartBadge(); }
         window.removeFromCart = function(cid) { cart = cart.filter(c => c.cartId !== cid); saveCart(); updateCartList(); }
-        function updateCartBadge() { document.getElementById('cart-count').innerText = cart.length; }
         
-        function updateCartList() {
+        window.updateCartList = function() {
             const c = document.getElementById('cart-items');
             const t = document.getElementById('cart-total');
             c.innerHTML = '';
@@ -735,42 +793,33 @@
         window.processCheckout = async function() {
             if(cart.length === 0) return alert("Cart is empty");
             
-            // OPTIONAL: Decrement stock in database
-            // Note: This is simplified. Real apps check stock availability again before decrementing.
-            for (let c of cart) {
-                const p = products.find(x => x.id === c.pid);
-                if (p && p.stock > 0) {
-                     await updateDoc(doc(productsColRef, p.id.toString()), { stock: p.stock - 1 });
-                }
+            // OPTIONAL: Reduce stock in Firestore immediately upon checkout
+            // Note: This is a simple implementation. In production, use transactions.
+            for (const c of cart) {
+               const p = products.find(x => x.id === c.pid);
+               if (p && p.stock > 0) {
+                   p.stock--;
+                   await saveProductToFirestore(p);
+               }
             }
 
             let msg = "Hello Rahata Store, my order:\n\n";
             let total = 0;
             cart.forEach((c, i) => { msg += `${i+1}. ${c.name} (${c.color}, ${c.size}) - ${fmt(c.price)}\n`; total += c.price; });
             msg += `\nTotal: ${fmt(total)}`;
+            
             cart = []; saveCart(); updateCartList(); toggleCart();
             window.open(`https://wa.me/6287785913689?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // Init App
-        initAuth();
-        if (sessionStorage.getItem('rahata_admin') === 'true') {
-            isAdmin = true;
-            document.body.classList.add('admin-active');
-        }
-        updateCartBadge();
-        updateCartList();
-
-        // Passkey enter listener
-        document.getElementById('admin-pass-input').addEventListener("keypress", function(event) {
-            if (event.key === "Enter") { performLogin(); }
-        });
-
+        // Event Listeners for Modal Outside Click
         window.onclick = (e) => { 
             if(e.target == document.getElementById('productModal')) closeModal(); 
             if(e.target == document.getElementById('loginModal')) closeLoginModal();
         }
 
+        // Initialize
+        init();
     </script>
 </body>
 </html>
