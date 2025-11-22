@@ -62,7 +62,7 @@ Project ini bersifat Statis, artinya Anda tidak perlu menginstall Node.js, PHP, 
 
 Clone Repository ini:
 
-git clone [https://github.com/mraihan777/rahata-store.git](https://github.com/username-anda/rahata-store.git)
+git clone [https://github.com/username-anda/rahata-store.git](https://github.com/username-anda/rahata-store.git)
 
 
 Buka File:
