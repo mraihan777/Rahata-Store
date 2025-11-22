@@ -103,7 +103,7 @@
         .faq-icon { transition: 0.3s; }
         .faq-item.active .faq-icon { transform: rotate(180deg); }
 
-        /* CSS YANG HILANG SEBELUMNYA: */
+        /* CSS Features */
         .features { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; text-align: center; margin-top: 30px; }
         .feature-box { flex: 1; min-width: 200px; padding: 20px; background: var(--gray); border-radius: 8px; display: flex; flex-direction: column; align-items: center; }
         .feature-box i { font-size: 2rem; margin-bottom: 15px; color: var(--primary); }
@@ -114,6 +114,11 @@
         .footer-section h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: #fff; text-transform: uppercase; }
         .footer-section p, .footer-section a { color: #999; font-size: 0.9rem; line-height: 1.8; text-decoration: none; display: block; margin-bottom: 8px; transition: 0.2s; }
         .footer-section a:hover { color: #fff; }
+        /* Social Media Icons Color Hover */
+        .footer-section a:hover .fa-instagram { color: #E1306C; }
+        .footer-section a:hover .fa-tiktok { color: #00f2ea; }
+        .footer-section a:hover .fa-facebook { color: #4267B2; }
+        
         .footer-bottom { border-top: 1px solid #333; padding-top: 20px; text-align: center; color: #555; font-size: 0.8rem; }
 
         /* --- Modals --- */
@@ -297,6 +302,13 @@
                 <p><i class="far fa-envelope"></i> support@rahatastore.com</p>
                 <p><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</p>
             </div>
+            <!-- NEW: SOCIAL MEDIA SECTION -->
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <p><i class="fab fa-instagram"></i> <a href="https://instagram.com/" target="_blank" style="display:inline;">@rahatastore</a></p>
+                <p><i class="fab fa-tiktok"></i> <a href="https://tiktok.com/" target="_blank" style="display:inline;">@rahatastore</a></p>
+                <p><i class="fab fa-facebook"></i> <a href="https://facebook.com/" target="_blank" style="display:inline;">Rahata Store</a></p>
+            </div>
         </div>
         <div class="footer-bottom">
             <span>&copy; 2023 Rahata Store. All Rights Reserved.</span>
@@ -334,8 +346,8 @@
                     <option value="S" data-extra="0">S</option>
                     <option value="M" data-extra="0">M</option>
                     <option value="L" data-extra="0">L</option>
-                    <option value="XL" data-extra="10000">XL)</option>
-                    <option value="XXL" data-extra="20000">XXL</option>
+                    <option value="XL" data-extra="10000">XL (+Rp 10.000)</option>
+                    <option value="XXL" data-extra="20000">XXL (+Rp 20.000)</option>
                 </select>
                 <label style="font-weight:600; display:block; margin-bottom:8px;">Color</label>
                 <select id="modal-color"></select>
@@ -705,5 +717,3 @@
     </script>
 </body>
 </html>
-
-
