@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rahata Store | Premium Hoodies</title>
+    <title>Rahata Store | Hybrid System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     
@@ -24,7 +24,7 @@
         header { background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eee; }
         .navbar { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 15px 40px; position: relative; }
         
-        .logo { display: block; text-decoration: none; }
+        .logo { display: block; text-decoration: none; cursor: pointer; }
         .logo img { height: 50px; width: auto; object-fit: contain; display: block; }
 
         .nav-links { display: flex; list-style: none; gap: 30px; position: absolute; left: 50%; transform: translateX(-50%); margin: 0; }
@@ -150,6 +150,10 @@
         .btn-black { background: black; color: white; width: 100%; padding: 18px; border: none; border-radius: 50px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: auto; }
         .btn-black:hover { background: #333; }
         .btn-black:disabled { background: #ccc; cursor: not-allowed; }
+        
+        /* Status Bar for DB Mode */
+        #db-status { background: #f0f9ff; color: #0369a1; text-align: center; padding: 5px; font-size: 0.8rem; font-weight: 600; border-bottom: 1px solid #bae6fd; display: none; }
+        #db-status.offline { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
 
         @media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) {
@@ -169,10 +173,13 @@
 </head>
 <body>
 
+    <!-- DB Status Notification -->
+    <div id="db-status">Detecting Database Connection...</div>
+
     <!-- Navbar -->
     <header>
         <div class="navbar">
-            <a href="#" class="logo" onclick="switchPage('home')">
+            <a onclick="switchPage('home')" class="logo">
                 <img src="static/images/logo-text.png" alt="Rahata Store" onerror="this.style.display='none'; this.parentElement.innerHTML='RAHATA STORE'">
             </a>
             
@@ -214,6 +221,7 @@
         <div class="container">
             <div class="section-title">Best Sellers</div>
             <div class="section-desc">This week's favorites</div>
+            <div id="loader-home" style="text-align:center; padding:20px;">Checking Data...</div>
             <div class="product-grid" id="home-grid"></div>
             <div style="text-align:center; margin-bottom:60px;">
                 <button class="btn-black" style="width:auto; padding: 12px 40px;" onclick="switchPage('products')">View All Products</button>
@@ -236,10 +244,12 @@
                 </div>
                 <button class="btn-black" style="background: var(--admin-color); width: auto; padding: 10px 20px;" onclick="addNewProduct()">+ Add Product</button>
                 <button class="btn-black" style="background: #555; width: auto; padding: 10px 20px;" onclick="handleLogout()">Logout Admin</button>
+                <button class="btn-black" id="btn-reset-db" style="background: var(--success); width: auto; padding: 10px 20px;" onclick="resetDatabase()">Reset / Seed Database</button>
             </div>
 
             <div class="section-title">All Products</div>
             <div class="section-desc">Find your best style from exclusive choices.</div>
+            <div id="loader-products" style="text-align:center; padding:20px;">Checking Data...</div>
             <div class="product-grid" id="products-grid"></div>
             <div id="no-results" style="text-align:center; display:none; padding:40px; color:#777;">No products found.</div>
         </div>
@@ -250,6 +260,7 @@
         <div class="container" style="padding-top: 40px;">
             <div class="section-title" style="color: var(--danger);">Flash Sale</div>
             <div class="section-desc">Limited offers on selected items.</div>
+            <div id="loader-sale" style="text-align:center; padding:20px;">Checking Data...</div>
             <div class="product-grid" id="sale-grid"></div>
         </div>
     </div>
@@ -302,7 +313,6 @@
                 <p><i class="far fa-envelope"></i> support@rahatastore.com</p>
                 <p><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</p>
             </div>
-            <!-- NEW: SOCIAL MEDIA SECTION -->
             <div class="footer-section">
                 <h3>Follow Us</h3>
                 <p><i class="fab fa-instagram"></i> <a href="https://www.instagram.com/ra1hannnnnnnnn/" target="_blank" style="display:inline;">@ra1hannnnnnnnn</a></p>
@@ -315,15 +325,13 @@
         </div>
     </footer>
 
-    <!-- LOGIN MODAL (NEW) -->
+    <!-- LOGIN MODAL -->
     <div id="loginModal" class="modal">
         <div class="login-modal-content">
             <span class="close-login" onclick="closeLoginModal()">&times;</span>
             <div class="login-title">Admin Access</div>
             <div class="login-subtitle">Login to manage your store inventory.</div>
-            
             <div class="login-error" id="login-error-msg">Incorrect Username or Password.</div>
-            
             <input type="text" id="admin-user-input" class="login-field" placeholder="Username">
             <input type="password" id="admin-pass-input" class="login-field" placeholder="Password">
             <button class="login-btn" onclick="performLogin()">Login</button>
@@ -369,210 +377,141 @@
         </div>
     </div>
 
-    <script>
-        // --- CONFIG ---
+    <!-- MAIN SCRIPT -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+        import { getAuth, signInAnonymously, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        // --- CONFIG & STATE ---
         const fmt = (n) => 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        const KEY_PROD = 'rahata_fixed_v19';
         const KEY_CART = 'rahata_cart_v19';
-        
-        // ADMIN CREDENTIALS
+        const KEY_LOCAL_PROD = 'rahata_local_prod_v19';
         const ADMIN_USER = "admin"; 
         const ADMIN_PASS = "mhmdrhn777";
-
+        
         let products = [], cart = JSON.parse(localStorage.getItem(KEY_CART)) || [], currentProduct = null;
         let isAdmin = false;
+        let isOnlineMode = false; // Flag to track mode
+        let db, productsColRef;
 
-        // --- CATALOG DATA ---
+        // CATALOG SEED (Used if Offline or DB empty)
         const initialCatalog = [
-            { id: 1, name: "Hoodie Cotton", cat: "Lifestyle", price: 310000, desc: "Pure comfort with 100% premium cotton. Soft, cool, and perfect for daily use.", colors: ['Black', 'Grey', 'Navy'] },
-            { id: 2, name: "Hoodie Fleece Premium", cat: "Winter", price: 350000, originalPrice: 450000, desc: "Maximum warmth with thick fleece material. Perfect for cold weather without sacrificing style. (SALE ITEM)", colors: ['Grey', 'Black', 'Cream'] },
-            { id: 3, name: "Hoodie Oversized", cat: "Streetwear", price: 290000, desc: "Look trendy with a relaxed oversized cut. A streetwear essential you must have.", colors: ['White', 'Black', 'Brown'] },
-            { id: 4, name: "Hoodie Zip", cat: "Sport", price: 325000, desc: "Practical and stylish. Zip-up hoodie with a classic design easily paired with any outfit.", colors: ['Navy', 'Black', 'Red'] },
-            { id: 5, name: "Sleeveless Hoodie", cat: "Gym", price: 250000, originalPrice: 300000, desc: "Free your movement during workouts or hanging out. Masculine and sporty sleeveless cut. (SALE ITEM)", colors: ['Red', 'Black', 'Blue'] },
-            { id: 6, name: "Front Print Hoodie", cat: "Graphic", price: 315000, desc: "Express yourself with high-quality front graphic print. Durable and long-lasting.", colors: ['Green', 'Black', 'White'] },
-            { id: 7, name: "Chunky Knit Hoodie", cat: "Vintage", price: 420000, desc: "Unique knit texture for a classy vintage look. Very warm and comfortable.", colors: ['Cream', 'Brown', 'Maroon'] },
-            { id: 8, name: "Hoodie Bomber", cat: "Outerwear", price: 380000, originalPrice: 500000, desc: "Cool fusion between a hoodie and a bomber jacket. Manly look for the modern man. (SALE ITEM)", colors: ['Light Blue', 'Black', 'Army Green'] },
-            { id: 9, name: "Hoodie Crop Top", cat: "Women", price: 275000, desc: "Chic crop cut for active women. Matches perfectly with high-waist jeans.", colors: ['Pink', 'White', 'Black'] },
-            { id: 10, name: "Reflective Hoodie", cat: "Night Run", price: 360000, desc: "Stay visible at night. Reflective accents that glow when hit by light, safe and cool.", colors: ['Black', 'Grey'] },
-            { id: 11, name: "Hoodie Balaclava", cat: "Techwear", price: 340000, desc: "Total protection with integrated balaclava design. Right choice for motorcycle riders or extreme weather.", colors: ['Dark Grey', 'Black', 'Navy'] },
-            { id: 12, name: "Hoodie Cotton 30s", cat: "Basic", price: 200000, originalPrice: 250000, desc: "Light and cool. 30s material suitable for tropical climates. (SALE ITEM)", colors: ['Leaf Green', 'Cream', 'Grey'] },
-            { id: 13, name: "Hoodie Tie-Dye", cat: "Artistic", price: 330000, desc: "Every piece is art. Handmade tie-dye motif that is unique and colorful.", colors: ['Multicolor', 'Blue-White', 'Purple-Pink'] },
-            { id: 14, name: "Hoodie Waterproof", cat: "Outdoor", price: 450000, desc: "Don't fear the rain. Water-resistant material keeping your body dry and comfortable.", colors: ['Black', 'Navy', 'Army Green'] },
-            { id: 15, name: "Hoodie Boxy", cat: "Streetwear", price: 305000, desc: "Modern and edgy boxy silhouette. Gives a firm structure to your appearance.", colors: ['Maroon', 'Black', 'Grey'] },
-            { id: 16, name: "Drawstring-less Hoodie", cat: "Minimalist", price: 280000, desc: "Minimalist design without hood drawstrings. Clean and elegant look.", colors: ['Navy', 'Black', 'Cream'] },
-            { id: 17, name: "Hoodie Cotton 20s", cat: "Basic", price: 230000, desc: "Medium thickness durability (20s). Durable and doesn't stretch easily even with frequent washing.", colors: ['Royal Blue', 'Grey', 'Red'] },
-            { id: 18, name: "Hoodie Cotton 24s", cat: "Standard", price: 260000, desc: "International distro standard. Smooth texture and absorbs sweat very well.", colors: ['Grey', 'Black', 'Dark Brown'] },
-            { id: 19, name: "Hoodie V-Neck", cat: "Casual", price: 295000, desc: "V-neck innovation on a hoodie. Gives a longer neck impression and casual look.", colors: ['Ivory', 'Black', 'Pink'] },
-            { id: 20, name: "Washed Hoodie", cat: "Vintage", price: 375000, originalPrice: 450000, desc: "Aesthetic washed/faded effect. Gives a cool 'worn-in' vintage look from the start. (SALE ITEM)", colors: ['Black', 'Navy', 'Maroon'] },
-            { id: 21, name: "Double Hood Hoodie", cat: "Layering", price: 390000, desc: "Instant layering. Design looks like wearing two hoodies, providing extra warmth.", colors: ['Bright Red', 'Black', 'Electric Blue'] },
-            { id: 22, name: "Hoodie Jogging", cat: "Sport", price: 300000, desc: "Designed specifically for runners. Breathable material maintaining stable body temperature.", colors: ['Pastel Yellow', 'Mint', 'Cream'] },
-            { id: 23, name: "Thumbhole Hoodie", cat: "Active", price: 310000, desc: "Keep sleeves in place. Thumbhole feature for extra comfort during active movement.", colors: ['Black', 'Grey', 'Dark Blue'] },
-            { id: 24, name: "Hoodie Striped", cat: "Pattern", price: 320000, desc: "Timeless striped motif. Gives a more athletic and dynamic body illusion.", colors: ['White/Blue', 'Black/White', 'Red/Navy'] },
-            { id: 25, name: "Faux Fur Hoodie", cat: "Luxury", price: 410000, desc: "Sensation of hugging a cloud. Super soft faux fur material pampering the skin.", colors: ['Brown', 'Cream', 'Black'] },
-            { id: 26, name: "Hoodie Baseball", cat: "Sport", price: 330000, desc: "Raglan two-tone design baseball style. Sporty and classic all the time.", colors: ['Grey/Black', 'Red/White', 'Blue/White'] },
-            { id: 27, name: "Back Print Hoodie", cat: "Graphic", price: 340000, desc: "Statement on your back. Large graphic design on the back for those who dare to be different.", colors: ['Army Green', 'Black', 'Brown'] },
-            { id: 28, name: "Hoodie Pullover", cat: "Classic", price: 270000, desc: "Simple without hassle. Just put it on, look handsome instantly. Essential wardrobe item.", colors: ['Navy', 'Black', 'Grey'] },
-            { id: 29, name: "Zipper Pocket Hoodie", cat: "Utility", price: 355000, desc: "Secure belongings. Pockets with zippers to store phone or keys during activities.", colors: ['Black', 'Grey', 'Navy Blue'] },
-            { id: 30, name: "Camouflage Hoodie", cat: "Military", price: 365000, desc: "Look fierce with camo motif. Suitable for outdoor or military look.", colors: ['Brown/Green', 'Grey/Black'] }
+            { id: 1, name: "Hoodie Cotton", cat: "Lifestyle", price: 310000, desc: "Pure comfort with 100% premium cotton.", colors: ['Black', 'Grey', 'Navy'], stock: 10 },
+            { id: 2, name: "Hoodie Fleece", cat: "Winter", price: 350000, originalPrice: 450000, desc: "Maximum warmth with thick fleece material. (SALE)", colors: ['Grey', 'Black'], stock: 5 },
+            { id: 3, name: "Hoodie Oversized", cat: "Streetwear", price: 290000, desc: "Look trendy with a relaxed oversized cut.", colors: ['White', 'Black'], stock: 8 },
+            { id: 4, name: "Hoodie Zip", cat: "Sport", price: 325000, desc: "Practical and stylish zip-up hoodie.", colors: ['Navy', 'Black'], stock: 12 },
+            { id: 5, name: "Sleeveless Hoodie", cat: "Gym", price: 250000, originalPrice: 300000, desc: "Free your movement during workouts.", colors: ['Red', 'Black'], stock: 6 },
+            { id: 6, name: "Front Print Hoodie", cat: "Graphic", price: 315000, desc: "Express yourself with high-quality print.", colors: ['Green', 'Black'], stock: 15 }
         ];
 
-        function init() {
-            const saved = localStorage.getItem(KEY_PROD);
-            if (saved) {
-                products = JSON.parse(saved);
-                if (!products[0].colors) resetData(); 
-            } else {
-                resetData();
+        // --- INITIALIZATION ---
+        async function initApp() {
+            const statusEl = document.getElementById('db-status');
+            
+            try {
+                // Check if Firebase config exists in this environment
+                if (typeof __firebase_config !== 'undefined') {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    const auth = getAuth(app);
+                    db = getFirestore(app);
+                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    productsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+                    
+                    // Activate Online Mode
+                    isOnlineMode = true;
+                    statusEl.style.display = 'block';
+                    statusEl.innerText = "Connected: Online Database Active";
+                    
+                    // Setup Listener
+                    onSnapshot(productsColRef, (snapshot) => {
+                        if(snapshot.empty) {
+                            products = [];
+                            document.getElementById('loader-home').innerText = "DB Empty. Admin reset needed.";
+                        } else {
+                            products = snapshot.docs.map(doc => ({ id: parseInt(doc.id), ...doc.data() }));
+                            products.sort((a,b) => a.id - b.id);
+                            renderAllGrids();
+                            hideLoaders();
+                        }
+                    }, (err) => {
+                        console.error("Listener Error:", err);
+                        fallbackToOffline();
+                    });
+
+                } else {
+                    throw new Error("Missing Config");
+                }
+            } catch (error) {
+                console.log("Firebase Init Failed/Skipped, using Offline Mode:", error);
+                fallbackToOffline();
             }
-            if (sessionStorage.getItem('rahata_admin') === 'true') enableAdminMode();
-            renderAllGrids();
+
+            // Restore Admin Session
+            if (sessionStorage.getItem('rahata_admin') === 'true') {
+                isAdmin = true;
+                document.body.classList.add('admin-active');
+            }
             updateCartBadge();
             updateCartList();
         }
 
-        function resetData() {
-            products = initialCatalog.map(item => ({
-                ...item,
-                stock: Math.floor(Math.random() * 15) + 5,
-            }));
-            saveProducts();
+        function fallbackToOffline() {
+            isOnlineMode = false;
+            const statusEl = document.getElementById('db-status');
+            statusEl.style.display = 'block';
+            statusEl.className = 'offline';
+            statusEl.innerText = "Offline Mode: Changes saved to your browser only.";
+            
+            // Load from LocalStorage or Seed
+            const saved = localStorage.getItem(KEY_LOCAL_PROD);
+            if(saved) {
+                products = JSON.parse(saved);
+            } else {
+                products = JSON.parse(JSON.stringify(initialCatalog));
+                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
+            }
+            
+            // Hide DB Reset button if offline (since it's confusing)
+            const btnReset = document.getElementById('btn-reset-db');
+            if(btnReset) btnReset.innerText = "Reset Local Data";
+
+            renderAllGrids();
+            hideLoaders();
         }
 
-        function saveProducts() { localStorage.setItem(KEY_PROD, JSON.stringify(products)); }
-        function saveCart() { localStorage.setItem(KEY_CART, JSON.stringify(cart)); updateCartBadge(); }
+        // --- UI FUNCTIONS (EXPOSED TO WINDOW) ---
+        // We assign these to window so HTML onclick works, even if modules are isolated
+        
+        window.switchPage = function(pid) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + pid).classList.add('active');
+            const nav = document.getElementById('nav-' + pid);
+            if(nav) nav.classList.add('active');
+            window.scrollTo(0,0);
+        }
 
-        function renderAllGrids() {
+        window.toggleFaq = (el) => el.classList.toggle('active');
+
+        window.renderAllGrids = function() {
             renderGrid(products.slice(0, 3), 'home-grid');
             renderGrid(products, 'products-grid');
             const saleItems = products.filter(p => p.originalPrice);
             renderGrid(saleItems, 'sale-grid');
         }
 
-        // --- LOGIN MODAL LOGIC ---
-        function openLoginModal() {
-            if (isAdmin) {
-                handleLogout();
-            } else {
-                document.getElementById('loginModal').style.display = 'flex';
-                document.getElementById('admin-user-input').value = '';
-                document.getElementById('admin-pass-input').value = '';
-                document.getElementById('login-error-msg').style.display = 'none';
-                document.getElementById('admin-user-input').focus();
-            }
-        }
-
-        function closeLoginModal() {
-            document.getElementById('loginModal').style.display = 'none';
-        }
-
-        function performLogin() {
-            const user = document.getElementById('admin-user-input').value;
-            const pass = document.getElementById('admin-pass-input').value;
-            const err = document.getElementById('login-error-msg');
-
-            if (user === ADMIN_USER && pass === ADMIN_PASS) {
-                enableAdminMode();
-                closeLoginModal();
-                switchPage('products');
-            } else {
-                err.style.display = 'block';
-                err.innerText = "Wrong Username or Password";
-            }
-        }
-        
-        // Trigger login on Enter key
-        document.getElementById('admin-pass-input').addEventListener("keypress", function(event) {
-            if (event.key === "Enter") { performLogin(); }
-        });
-
-        function enableAdminMode() {
-            isAdmin = true;
-            sessionStorage.setItem('rahata_admin', 'true');
-            document.body.classList.add('admin-active');
-            const btn = document.getElementById('admin-btn');
-            if(btn) {
-                btn.classList.add('active-admin');
-                btn.title = "Logout Admin";
-            }
-            renderAllGrids();
-        }
-
-        function handleLogout() {
-            if(!confirm("Logout from Admin mode?")) return;
-            isAdmin = false;
-            sessionStorage.removeItem('rahata_admin');
-            document.body.classList.remove('admin-active');
-            const btn = document.getElementById('admin-btn');
-            if(btn) {
-                btn.classList.remove('active-admin');
-                btn.title = "Admin Login";
-            }
-            renderAllGrids();
-        }
-
-        function addNewProduct() {
-            const name = document.getElementById('new-name').value;
-            const cat = document.getElementById('new-cat').value;
-            const price = parseInt(document.getElementById('new-price').value);
-            const stock = parseInt(document.getElementById('new-stock').value);
-            const desc = document.getElementById('new-desc').value;
-            if (!name || !price) return alert("Name and Price are required!");
-            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-            products.push({ id: newId, name, cat, price, stock, desc, colors:['Black','White'] });
-            saveProducts();
-            renderAllGrids();
-            alert("Product added successfully!");
-        }
-        function deleteProduct(id) {
-            if(confirm("Delete this product?")) {
-                products = products.filter(p => p.id !== id);
-                saveProducts();
-                renderAllGrids();
-            }
-        }
-        function editProduct(id) {
-            const p = products.find(x => x.id === id);
-            const newPrice = prompt("New Price:", p.price);
-            if (newPrice) { p.price = parseInt(newPrice); saveProducts(); renderAllGrids(); }
-        }
-        function editSale(id) {
-            const p = products.find(x => x.id === id);
-            const salePrice = prompt(`Enter SALE price for ${p.name} (Normal: ${fmt(p.originalPrice || p.price)}). Enter 0 to remove sale.`);
-            if (salePrice !== null) {
-                const newSale = parseInt(salePrice);
-                if (newSale > 0) {
-                    if(!p.originalPrice) p.originalPrice = p.price;
-                    p.price = newSale;
-                } else {
-                    if(p.originalPrice) {
-                        p.price = p.originalPrice;
-                        delete p.originalPrice;
-                    }
-                }
-                saveProducts();
-                renderAllGrids();
-            }
-        }
-        function addStock(id) {
-            const p = products.find(x => x.id === id);
-            const quantity = prompt(`Stok Saat Ini: ${p.stock}\nBerapa banyak stok yang ingin ditambahkan? (Gunakan angka negatif untuk mengurangi)`, "10");
-            if (quantity !== null) {
-                const qty = parseInt(quantity);
-                if (!isNaN(qty)) {
-                    p.stock += qty;
-                    if (p.stock < 0) p.stock = 0;
-                    saveProducts();
-                    renderAllGrids();
-                    alert(`Stok berhasil diperbarui! Stok baru: ${p.stock}`);
-                } else {
-                    alert("Input tidak valid. Harap masukkan angka.");
-                }
-            }
-        }
-
-        // --- GRID RENDER ---
-        function renderGrid(data, elementId) {
+        window.renderGrid = function(data, elementId) {
             const grid = document.getElementById(elementId);
+            if(!grid) return;
             grid.innerHTML = '';
             data.forEach(p => {
                 const imgPath = `static/images/hoodie${p.id}.jpg`;
@@ -588,7 +527,7 @@
                         <button class="btn-admin-edit" onclick="event.stopPropagation(); editProduct(${p.id})">Edit</button>
                         <button class="btn-admin-stock" onclick="event.stopPropagation(); addStock(${p.id})">+ Stock</button>
                         <button class="btn-admin-sale" onclick="event.stopPropagation(); editSale(${p.id})">Sale</button>
-                        <button class="btn-admin-delete" onclick="event.stopPropagation(); deleteProduct(${p.id})">Delete</button>
+                        <button class="btn-admin-delete" onclick="event.stopPropagation(); deleteProduct(${p.id})">Del</button>
                     </div>` : '';
 
                 grid.innerHTML += `
@@ -605,24 +544,7 @@
             });
         }
 
-        // --- HELPERS ---
-        function switchPage(pid) {
-            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
-            document.getElementById('page-' + pid).classList.add('active');
-            const nav = document.getElementById('nav-' + pid);
-            if(nav) nav.classList.add('active');
-            window.scrollTo(0,0);
-        }
-        function toggleFaq(el) { el.classList.toggle('active'); }
-        function handleSearch() {
-            const q = document.getElementById('search-input').value.toLowerCase();
-            if (q.length > 0) switchPage('products');
-            const f = products.filter(p => p.name.toLowerCase().includes(q));
-            renderGrid(f, 'products-grid');
-            document.getElementById('no-results').style.display = f.length === 0 ? 'block' : 'none';
-        }
-        function openModal(id) {
+        window.openModal = function(id) {
             const p = products.find(x => x.id === id);
             currentProduct = p;
             document.getElementById('modal-title').innerText = p.name;
@@ -658,63 +580,207 @@
                 opt.innerText = c;
                 colorSelect.appendChild(opt);
             });
-
             document.getElementById('modal-size').value = "S";
             document.getElementById('productModal').style.display = 'flex';
         }
-        function closeModal() { document.getElementById('productModal').style.display = 'none'; }
-        function updatePrice() {
-            if(!currentProduct) return;
-            const sizeEl = document.getElementById('modal-size');
-            const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
-            document.querySelector('#modal-price-container span').innerText = fmt(currentProduct.price + extra);
+        window.closeModal = () => document.getElementById('productModal').style.display = 'none';
+        
+        // --- DATA MODIFICATION (HYBRID) ---
+        
+        window.addNewProduct = async function() {
+            const name = document.getElementById('new-name').value;
+            const cat = document.getElementById('new-cat').value;
+            const price = parseInt(document.getElementById('new-price').value);
+            const stock = parseInt(document.getElementById('new-stock').value);
+            const desc = document.getElementById('new-desc').value;
+            if (!name || !price) return alert("Name/Price required!");
+            
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            const newItem = { id: newId, name, cat, price, stock, desc, colors:['Black','White'] };
+            
+            if(isOnlineMode) {
+                await setDoc(doc(productsColRef, newId.toString()), newItem);
+            } else {
+                products.push(newItem);
+                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
+                renderAllGrids();
+            }
+            alert("Product added!");
         }
-        function addToCart() {
+
+        window.deleteProduct = async function(id) {
+            if(!confirm("Delete product?")) return;
+            if(isOnlineMode) {
+                await deleteDoc(doc(productsColRef, id.toString()));
+            } else {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
+                renderAllGrids();
+            }
+        }
+
+        window.addStock = async function(id) {
+            const p = products.find(x => x.id === id);
+            const qty = parseInt(prompt(`Current: ${p.stock}\nAdd amount:`, "10"));
+            if (isNaN(qty)) return;
+            
+            const newStock = Math.max(0, p.stock + qty);
+            
+            if(isOnlineMode) {
+                await updateDoc(doc(productsColRef, id.toString()), { stock: newStock });
+            } else {
+                p.stock = newStock;
+                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
+                renderAllGrids();
+            }
+        }
+
+        window.editSale = async function(id) {
+            const p = products.find(x => x.id === id);
+            const salePrice = parseInt(prompt(`Sale Price (0 to remove):`, "0"));
+            if (isNaN(salePrice)) return;
+
+            if(isOnlineMode) {
+                 if (salePrice > 0) {
+                    const up = { price: salePrice };
+                    if(!p.originalPrice) up.originalPrice = p.price;
+                    await updateDoc(doc(productsColRef, id.toString()), up);
+                } else {
+                    if(p.originalPrice) await updateDoc(doc(productsColRef, id.toString()), { price: p.originalPrice, originalPrice: null });
+                }
+            } else {
+                if(salePrice > 0) {
+                     if(!p.originalPrice) p.originalPrice = p.price;
+                     p.price = salePrice;
+                } else {
+                     if(p.originalPrice) { p.price = p.originalPrice; delete p.originalPrice; }
+                }
+                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
+                renderAllGrids();
+            }
+        }
+
+        window.resetDatabase = async function() {
+            if(!confirm("Reset all data to defaults?")) return;
+            if(isOnlineMode) {
+                // Simplified reset for demo
+                for (let p of products) await deleteDoc(doc(productsColRef, p.id.toString()));
+                for (let item of initialCatalog) await setDoc(doc(productsColRef, item.id.toString()), item);
+            } else {
+                products = JSON.parse(JSON.stringify(initialCatalog));
+                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
+                renderAllGrids();
+            }
+            alert("Reset complete!");
+        }
+
+        // --- CART & LOGIN LOGIC ---
+        
+        window.addToCart = function() {
             if(!currentProduct || currentProduct.stock <= 0) return alert("Stock empty.");
             const sizeEl = document.getElementById('modal-size');
             const colorEl = document.getElementById('modal-color');
             const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
-            cart.push({ 
-                cartId: Date.now(), 
-                pid: currentProduct.id, 
-                name: currentProduct.name, 
-                price: currentProduct.price + extra, 
-                size: sizeEl.value,
-                color: colorEl.value
-            });
+            cart.push({ cartId: Date.now(), pid: currentProduct.id, name: currentProduct.name, price: currentProduct.price + extra, size: sizeEl.value, color: colorEl.value });
             saveCart(); updateCartList(); closeModal(); toggleCart();
         }
-        function removeFromCart(cid) { cart = cart.filter(c => c.cartId !== cid); saveCart(); updateCartList(); }
+
+        window.removeFromCart = (cid) => { cart = cart.filter(c => c.cartId !== cid); saveCart(); updateCartList(); }
+        window.toggleCart = () => document.getElementById('cartSidebar').classList.toggle('active');
+        window.updatePrice = () => {
+             const sizeEl = document.getElementById('modal-size');
+             const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
+             document.querySelector('#modal-price-container span').innerText = fmt(currentProduct.price + extra);
+        }
+
+        function saveCart() { localStorage.setItem(KEY_CART, JSON.stringify(cart)); updateCartBadge(); }
         function updateCartBadge() { document.getElementById('cart-count').innerText = cart.length; }
         function updateCartList() {
             const c = document.getElementById('cart-items');
-            const t = document.getElementById('cart-total');
             c.innerHTML = '';
             let total = 0;
             cart.forEach(item => {
                 total += item.price;
                 c.innerHTML += `<div class="cart-item"><img src="static/images/hoodie${item.pid}.jpg" onerror="this.style.display='none'"><div style="flex:1"><div style="font-weight:600;font-size:0.9rem">${item.name}</div><div style="font-size:0.8rem;color:#666">${item.color} | ${item.size}</div><div style="display:flex;justify-content:space-between;margin-top:5px;"><span style="font-weight:600">${fmt(item.price)}</span><span onclick="removeFromCart(${item.cartId})" style="color:red;cursor:pointer;font-size:0.8rem">Remove</span></div></div></div>`;
             });
-            t.innerText = fmt(total);
+            document.getElementById('cart-total').innerText = fmt(total);
         }
-        function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); }
-        function processCheckout() {
+
+        window.processCheckout = async function() {
             if(cart.length === 0) return alert("Cart is empty");
-            cart.forEach(c => { const p = products.find(x => x.id === c.pid); if(p && p.stock > 0) p.stock--; });
-            saveProducts();
+            
+            // Dec stock
+            for (let c of cart) {
+                const p = products.find(x => x.id === c.pid);
+                if (p && p.stock > 0) {
+                    if(isOnlineMode) {
+                        await updateDoc(doc(productsColRef, p.id.toString()), { stock: p.stock - 1 });
+                    } else {
+                        p.stock--;
+                        localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
+                    }
+                }
+            }
+            if(!isOnlineMode) renderAllGrids();
+
             let msg = "Hello Rahata Store, my order:\n\n";
             let total = 0;
             cart.forEach((c, i) => { msg += `${i+1}. ${c.name} (${c.color}, ${c.size}) - ${fmt(c.price)}\n`; total += c.price; });
             msg += `\nTotal: ${fmt(total)}`;
-            cart = []; saveCart(); updateCartList(); renderAllGrids(); toggleCart();
+            cart = []; saveCart(); updateCartList(); toggleCart();
             window.open(`https://wa.me/6287785913689?text=${encodeURIComponent(msg)}`, '_blank');
         }
+
+        // --- AUTH UI ---
+        window.openLoginModal = () => {
+            if (isAdmin) {
+                if(!confirm("Logout Admin?")) return;
+                isAdmin = false;
+                sessionStorage.removeItem('rahata_admin');
+                document.body.classList.remove('admin-active');
+                renderAllGrids();
+            } else {
+                document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('login-error-msg').style.display = 'none';
+            }
+        }
+        window.closeLoginModal = () => document.getElementById('loginModal').style.display = 'none';
+        window.performLogin = () => {
+            const u = document.getElementById('admin-user-input').value;
+            const p = document.getElementById('admin-pass-input').value;
+            if (u === ADMIN_USER && p === ADMIN_PASS) {
+                isAdmin = true;
+                sessionStorage.setItem('rahata_admin', 'true');
+                document.body.classList.add('admin-active');
+                closeLoginModal();
+                renderAllGrids();
+            } else {
+                document.getElementById('login-error-msg').style.display = 'block';
+            }
+        }
+        window.handleLogout = window.openLoginModal; // Reuse
+        window.handleSearch = () => {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            if (q.length > 0) switchPage('products');
+            const f = products.filter(p => p.name.toLowerCase().includes(q));
+            renderGrid(f, 'products-grid');
+            document.getElementById('no-results').style.display = f.length === 0 ? 'block' : 'none';
+        }
+        
+        function hideLoaders() {
+            document.getElementById('loader-home').style.display = 'none';
+            document.getElementById('loader-products').style.display = 'none';
+            document.getElementById('loader-sale').style.display = 'none';
+        }
+
         window.onclick = (e) => { 
             if(e.target == document.getElementById('productModal')) closeModal(); 
             if(e.target == document.getElementById('loginModal')) closeLoginModal();
         }
-        init();
+
+        // START
+        initApp();
+
     </script>
 </body>
 </html>
-
