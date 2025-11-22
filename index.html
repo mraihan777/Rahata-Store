@@ -94,7 +94,7 @@
         .admin-form input, .admin-form select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
         .admin-form-full { grid-column: 1 / -1; }
 
-        /* --- Footer & FAQ --- */
+        /* --- Footer, FAQ & About Features (FIXED) --- */
         .faq-wrap, .about-wrap { max-width: 800px; margin: 60px auto; padding: 0 20px; }
         .faq-item { border-bottom: 1px solid #eee; padding: 20px 0; }
         .faq-question { font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
@@ -102,6 +102,12 @@
         .faq-item.active .faq-answer { display: block; animation: fadeIn 0.3s; }
         .faq-icon { transition: 0.3s; }
         .faq-item.active .faq-icon { transform: rotate(180deg); }
+
+        /* CSS YANG HILANG SEBELUMNYA: */
+        .features { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; text-align: center; margin-top: 30px; }
+        .feature-box { flex: 1; min-width: 200px; padding: 20px; background: var(--gray); border-radius: 8px; display: flex; flex-direction: column; align-items: center; }
+        .feature-box i { font-size: 2rem; margin-bottom: 15px; color: var(--primary); }
+        .feature-box h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
 
         footer { background-color: #111; color: #fff; padding: 60px 5% 20px; margin-top: auto; }
         .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; max-width: 1440px; margin: 0 auto; margin-bottom: 40px; }
