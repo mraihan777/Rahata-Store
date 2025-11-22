@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rahata Store | Premium Hoodies</title>
+    <title>Rahata Store | Real-time Database</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     
@@ -24,7 +24,7 @@
         header { background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eee; }
         .navbar { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 15px 40px; position: relative; }
         
-        .logo { display: block; text-decoration: none; cursor: pointer; }
+        .logo { display: block; text-decoration: none; }
         .logo img { height: 50px; width: auto; object-fit: contain; display: block; }
 
         .nav-links { display: flex; list-style: none; gap: 30px; position: absolute; left: 50%; transform: translateX(-50%); margin: 0; }
@@ -150,10 +150,9 @@
         .btn-black { background: black; color: white; width: 100%; padding: 18px; border: none; border-radius: 50px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: auto; }
         .btn-black:hover { background: #333; }
         .btn-black:disabled { background: #ccc; cursor: not-allowed; }
-        
-        /* Status Bar for DB Mode */
-        #db-status { background: #f0f9ff; color: #0369a1; text-align: center; padding: 5px; font-size: 0.8rem; font-weight: 600; border-bottom: 1px solid #bae6fd; display: none; }
-        #db-status.offline { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+
+        /* Loader */
+        #loader { text-align: center; padding: 40px; font-weight: bold; color: #555; display: none; }
 
         @media (max-width: 1024px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) {
@@ -173,13 +172,10 @@
 </head>
 <body>
 
-    <!-- DB Status Notification -->
-    <div id="db-status">Detecting Database Connection...</div>
-
     <!-- Navbar -->
     <header>
         <div class="navbar">
-            <a onclick="switchPage('home')" class="logo">
+            <a href="#" class="logo" onclick="switchPage('home')">
                 <img src="static/images/logo-text.png" alt="Rahata Store" onerror="this.style.display='none'; this.parentElement.innerHTML='RAHATA STORE'">
             </a>
             
@@ -221,7 +217,7 @@
         <div class="container">
             <div class="section-title">Best Sellers</div>
             <div class="section-desc">This week's favorites</div>
-            <div id="loader-home" style="text-align:center; padding:20px;">Checking Data...</div>
+            <div id="loader-home" style="text-align:center; padding:20px;">Loading Data...</div>
             <div class="product-grid" id="home-grid"></div>
             <div style="text-align:center; margin-bottom:60px;">
                 <button class="btn-black" style="width:auto; padding: 12px 40px;" onclick="switchPage('products')">View All Products</button>
@@ -244,12 +240,12 @@
                 </div>
                 <button class="btn-black" style="background: var(--admin-color); width: auto; padding: 10px 20px;" onclick="addNewProduct()">+ Add Product</button>
                 <button class="btn-black" style="background: #555; width: auto; padding: 10px 20px;" onclick="handleLogout()">Logout Admin</button>
-                <button class="btn-black" id="btn-reset-db" style="background: var(--success); width: auto; padding: 10px 20px;" onclick="resetDatabase()">Reset / Seed Database</button>
+                <button class="btn-black" style="background: var(--success); width: auto; padding: 10px 20px;" onclick="resetDatabase()">Reset / Seed Database</button>
             </div>
 
             <div class="section-title">All Products</div>
             <div class="section-desc">Find your best style from exclusive choices.</div>
-            <div id="loader-products" style="text-align:center; padding:20px;">Checking Data...</div>
+            <div id="loader-products" style="text-align:center; padding:20px;">Loading Real-time Data...</div>
             <div class="product-grid" id="products-grid"></div>
             <div id="no-results" style="text-align:center; display:none; padding:40px; color:#777;">No products found.</div>
         </div>
@@ -260,7 +256,7 @@
         <div class="container" style="padding-top: 40px;">
             <div class="section-title" style="color: var(--danger);">Flash Sale</div>
             <div class="section-desc">Limited offers on selected items.</div>
-            <div id="loader-sale" style="text-align:center; padding:20px;">Checking Data...</div>
+            <div id="loader-sale" style="text-align:center; padding:20px;">Loading Deals...</div>
             <div class="product-grid" id="sale-grid"></div>
         </div>
     </div>
@@ -313,6 +309,7 @@
                 <p><i class="far fa-envelope"></i> support@rahatastore.com</p>
                 <p><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</p>
             </div>
+            <!-- NEW: SOCIAL MEDIA SECTION -->
             <div class="footer-section">
                 <h3>Follow Us</h3>
                 <p><i class="fab fa-instagram"></i> <a href="https://www.instagram.com/ra1hannnnnnnnn/" target="_blank" style="display:inline;">@ra1hannnnnnnnn</a></p>
@@ -325,13 +322,15 @@
         </div>
     </footer>
 
-    <!-- LOGIN MODAL -->
+    <!-- LOGIN MODAL (NEW) -->
     <div id="loginModal" class="modal">
         <div class="login-modal-content">
             <span class="close-login" onclick="closeLoginModal()">&times;</span>
             <div class="login-title">Admin Access</div>
             <div class="login-subtitle">Login to manage your store inventory.</div>
+            
             <div class="login-error" id="login-error-msg">Incorrect Username or Password.</div>
+            
             <input type="text" id="admin-user-input" class="login-field" placeholder="Username">
             <input type="password" id="admin-pass-input" class="login-field" placeholder="Password">
             <button class="login-btn" onclick="performLogin()">Login</button>
@@ -377,130 +376,168 @@
         </div>
     </div>
 
-    <!-- MAIN SCRIPT -->
+    <!-- FIREBASE MODULES -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
         import { getAuth, signInAnonymously, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
         import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-        // --- CONFIG & STATE ---
+        // --- CONFIG ---
         const fmt = (n) => 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        const KEY_CART = 'rahata_cart_v19';
-        const KEY_LOCAL_PROD = 'rahata_local_prod_v19';
+        const KEY_CART = 'rahata_cart_v19'; // Cart still local
         const ADMIN_USER = "admin"; 
         const ADMIN_PASS = "mhmdrhn777";
         
         let products = [], cart = JSON.parse(localStorage.getItem(KEY_CART)) || [], currentProduct = null;
         let isAdmin = false;
-        let isOnlineMode = false; // Flag to track mode
-        let db, productsColRef;
 
-        // CATALOG SEED (Used if Offline or DB empty)
+        // --- CATALOG DATA (For Seed Only) ---
         const initialCatalog = [
-            { id: 1, name: "Hoodie Cotton", cat: "Lifestyle", price: 310000, desc: "Pure comfort with 100% premium cotton.", colors: ['Black', 'Grey', 'Navy'], stock: 10 },
-            { id: 2, name: "Hoodie Fleece", cat: "Winter", price: 350000, originalPrice: 450000, desc: "Maximum warmth with thick fleece material. (SALE)", colors: ['Grey', 'Black'], stock: 5 },
-            { id: 3, name: "Hoodie Oversized", cat: "Streetwear", price: 290000, desc: "Look trendy with a relaxed oversized cut.", colors: ['White', 'Black'], stock: 8 },
-            { id: 4, name: "Hoodie Zip", cat: "Sport", price: 325000, desc: "Practical and stylish zip-up hoodie.", colors: ['Navy', 'Black'], stock: 12 },
-            { id: 5, name: "Sleeveless Hoodie", cat: "Gym", price: 250000, originalPrice: 300000, desc: "Free your movement during workouts.", colors: ['Red', 'Black'], stock: 6 },
-            { id: 6, name: "Front Print Hoodie", cat: "Graphic", price: 315000, desc: "Express yourself with high-quality print.", colors: ['Green', 'Black'], stock: 15 }
+            { id: 1, name: "Hoodie Cotton", cat: "Lifestyle", price: 310000, desc: "Pure comfort with 100% premium cotton. Soft, cool, and perfect for daily use.", colors: ['Black', 'Grey', 'Navy'], stock: 10 },
+            { id: 2, name: "Hoodie Fleece Premium", cat: "Winter", price: 350000, originalPrice: 450000, desc: "Maximum warmth with thick fleece material. Perfect for cold weather without sacrificing style. (SALE ITEM)", colors: ['Grey', 'Black', 'Cream'], stock: 5 },
+            { id: 3, name: "Hoodie Oversized", cat: "Streetwear", price: 290000, desc: "Look trendy with a relaxed oversized cut. A streetwear essential you must have.", colors: ['White', 'Black', 'Brown'], stock: 8 },
+            { id: 4, name: "Hoodie Zip", cat: "Sport", price: 325000, desc: "Practical and stylish. Zip-up hoodie with a classic design easily paired with any outfit.", colors: ['Navy', 'Black', 'Red'], stock: 12 },
+            { id: 5, name: "Sleeveless Hoodie", cat: "Gym", price: 250000, originalPrice: 300000, desc: "Free your movement during workouts or hanging out. Masculine and sporty sleeveless cut. (SALE ITEM)", colors: ['Red', 'Black', 'Blue'], stock: 6 },
+            { id: 6, name: "Front Print Hoodie", cat: "Graphic", price: 315000, desc: "Express yourself with high-quality front graphic print. Durable and long-lasting.", colors: ['Green', 'Black', 'White'], stock: 15 }
         ];
 
-        // --- INITIALIZATION ---
-        async function initApp() {
-            const statusEl = document.getElementById('db-status');
-            
+        // --- FIREBASE INIT ---
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        let productsColRef;
+
+        async function initAuth() {
             try {
-                // Check if Firebase config exists in this environment
-                if (typeof __firebase_config !== 'undefined') {
-                    const firebaseConfig = JSON.parse(__firebase_config);
-                    const app = initializeApp(firebaseConfig);
-                    const auth = getAuth(app);
-                    db = getFirestore(app);
-                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-                    productsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
-                    
-                    // Activate Online Mode
-                    isOnlineMode = true;
-                    statusEl.style.display = 'block';
-                    statusEl.innerText = "Connected: Online Database Active";
-                    
-                    // Setup Listener
-                    onSnapshot(productsColRef, (snapshot) => {
-                        if(snapshot.empty) {
-                            products = [];
-                            document.getElementById('loader-home').innerText = "DB Empty. Admin reset needed.";
-                        } else {
-                            products = snapshot.docs.map(doc => ({ id: parseInt(doc.id), ...doc.data() }));
-                            products.sort((a,b) => a.id - b.id);
-                            renderAllGrids();
-                            hideLoaders();
-                        }
-                    }, (err) => {
-                        console.error("Listener Error:", err);
-                        fallbackToOffline();
-                    });
-
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
-                    throw new Error("Missing Config");
+                    await signInAnonymously(auth);
                 }
+                
+                // Once authenticated, setup listeners
+                productsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+                setupRealtimeListener();
             } catch (error) {
-                console.log("Firebase Init Failed/Skipped, using Offline Mode:", error);
-                fallbackToOffline();
+                console.error("Auth failed:", error);
             }
-
-            // Restore Admin Session
-            if (sessionStorage.getItem('rahata_admin') === 'true') {
-                isAdmin = true;
-                document.body.classList.add('admin-active');
-            }
-            updateCartBadge();
-            updateCartList();
         }
 
-        function fallbackToOffline() {
-            isOnlineMode = false;
-            const statusEl = document.getElementById('db-status');
-            statusEl.style.display = 'block';
-            statusEl.className = 'offline';
-            statusEl.innerText = "Offline Mode: Changes saved to your browser only.";
-            
-            // Load from LocalStorage or Seed
-            const saved = localStorage.getItem(KEY_LOCAL_PROD);
-            if(saved) {
-                products = JSON.parse(saved);
-            } else {
-                products = JSON.parse(JSON.stringify(initialCatalog));
-                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
-            }
-            
-            // Hide DB Reset button if offline (since it's confusing)
-            const btnReset = document.getElementById('btn-reset-db');
-            if(btnReset) btnReset.innerText = "Reset Local Data";
-
-            renderAllGrids();
-            hideLoaders();
+        function setupRealtimeListener() {
+            onSnapshot(productsColRef, (snapshot) => {
+                if(snapshot.empty) {
+                    // If empty, user can trigger seed manually or we just show empty
+                    document.getElementById('loader-home').innerText = "Database empty. Admin login to Seed.";
+                    products = [];
+                } else {
+                    products = snapshot.docs.map(doc => ({ id: parseInt(doc.id), ...doc.data() }));
+                    // Sort by ID to keep order
+                    products.sort((a,b) => a.id - b.id);
+                    renderAllGrids();
+                    hideLoaders();
+                }
+            }, (error) => {
+                console.error("Data fetch error:", error);
+                document.getElementById('loader-home').innerText = "Error loading data.";
+            });
         }
 
-        // --- UI FUNCTIONS (EXPOSED TO WINDOW) ---
-        // We assign these to window so HTML onclick works, even if modules are isolated
+        // Expose functions to global window for HTML onclick handlers
+        window.resetDatabase = async function() {
+            if(!confirm("Warning: This will overwrite the online database with default items. Continue?")) return;
+            
+            // Delete existing (simplified for this demo, usually we batch delete)
+            for (let p of products) {
+                await deleteDoc(doc(productsColRef, p.id.toString()));
+            }
+
+            // Upload initial
+            for (let item of initialCatalog) {
+                await setDoc(doc(productsColRef, item.id.toString()), item);
+            }
+            alert("Database reset to defaults!");
+        }
+
+        window.addNewProduct = async function() {
+            const name = document.getElementById('new-name').value;
+            const cat = document.getElementById('new-cat').value;
+            const price = parseInt(document.getElementById('new-price').value);
+            const stock = parseInt(document.getElementById('new-stock').value);
+            const desc = document.getElementById('new-desc').value;
+            const sale = document.getElementById('new-sale-price').value;
+
+            if (!name || !price) return alert("Name and Price are required!");
+            
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            
+            const newItem = { 
+                id: newId, 
+                name, cat, price, stock, desc, 
+                colors:['Black','White'],
+                ...(sale ? { originalPrice: price, price: parseInt(sale) } : {}) 
+            };
+
+            await setDoc(doc(productsColRef, newId.toString()), newItem);
+            alert("Product added to Cloud!");
+            // No need to render, onSnapshot will do it
+        }
+
+        window.deleteProduct = async function(id) {
+            if(confirm("Delete this product for EVERYONE?")) {
+                await deleteDoc(doc(productsColRef, id.toString()));
+            }
+        }
+
+        window.editProduct = async function(id) {
+            const p = products.find(x => x.id === id);
+            const newPrice = prompt("New Price:", p.price);
+            if (newPrice) { 
+                await updateDoc(doc(productsColRef, id.toString()), { price: parseInt(newPrice) });
+            }
+        }
+
+        window.addStock = async function(id) {
+            const p = products.find(x => x.id === id);
+            const quantity = prompt(`Current Stock: ${p.stock}\nHow much to add? (Use negative to remove)`, "10");
+            if (quantity !== null) {
+                const qty = parseInt(quantity);
+                if (!isNaN(qty)) {
+                    const newStock = Math.max(0, p.stock + qty);
+                    await updateDoc(doc(productsColRef, id.toString()), { stock: newStock });
+                }
+            }
+        }
         
-        window.switchPage = function(pid) {
-            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
-            document.getElementById('page-' + pid).classList.add('active');
-            const nav = document.getElementById('nav-' + pid);
-            if(nav) nav.classList.add('active');
-            window.scrollTo(0,0);
+        window.editSale = async function(id) {
+            const p = products.find(x => x.id === id);
+            const salePrice = prompt(`Enter SALE price for ${p.name} (Normal: ${fmt(p.originalPrice || p.price)}). Enter 0 to remove sale.`);
+            if (salePrice !== null) {
+                const newSale = parseInt(salePrice);
+                if (newSale > 0) {
+                    const updates = { price: newSale };
+                    if(!p.originalPrice) updates.originalPrice = p.price;
+                    await updateDoc(doc(productsColRef, id.toString()), updates);
+                } else {
+                    if(p.originalPrice) {
+                        await updateDoc(doc(productsColRef, id.toString()), {
+                            price: p.originalPrice,
+                            originalPrice: null // In firestore use deleteField() usually, but null works for simple logic
+                        });
+                    }
+                }
+            }
         }
 
-        window.toggleFaq = (el) => el.classList.toggle('active');
+        // --- LOCAL CART & UI ---
+        
+        function hideLoaders() {
+            document.getElementById('loader-home').style.display = 'none';
+            document.getElementById('loader-products').style.display = 'none';
+            document.getElementById('loader-sale').style.display = 'none';
+        }
 
         window.renderAllGrids = function() {
             renderGrid(products.slice(0, 3), 'home-grid');
@@ -509,6 +546,54 @@
             renderGrid(saleItems, 'sale-grid');
         }
 
+        // LOGIN MODAL
+        window.openLoginModal = function() {
+            if (isAdmin) {
+                handleLogout();
+            } else {
+                document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('admin-user-input').value = '';
+                document.getElementById('admin-pass-input').value = '';
+                document.getElementById('login-error-msg').style.display = 'none';
+                document.getElementById('admin-user-input').focus();
+            }
+        }
+
+        window.closeLoginModal = function() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        window.performLogin = function() {
+            const user = document.getElementById('admin-user-input').value;
+            const pass = document.getElementById('admin-pass-input').value;
+            const err = document.getElementById('login-error-msg');
+
+            if (user === ADMIN_USER && pass === ADMIN_PASS) {
+                isAdmin = true;
+                sessionStorage.setItem('rahata_admin', 'true');
+                document.body.classList.add('admin-active');
+                const btn = document.getElementById('admin-btn');
+                if(btn) { btn.classList.add('active-admin'); btn.title = "Logout Admin"; }
+                closeLoginModal();
+                switchPage('products');
+                renderAllGrids();
+            } else {
+                err.style.display = 'block';
+                err.innerText = "Wrong Username or Password";
+            }
+        }
+        
+        window.handleLogout = function() {
+            if(!confirm("Logout from Admin mode?")) return;
+            isAdmin = false;
+            sessionStorage.removeItem('rahata_admin');
+            document.body.classList.remove('admin-active');
+            const btn = document.getElementById('admin-btn');
+            if(btn) { btn.classList.remove('active-admin'); btn.title = "Admin Login"; }
+            renderAllGrids();
+        }
+
+        // Standard Functions
         window.renderGrid = function(data, elementId) {
             const grid = document.getElementById(elementId);
             if(!grid) return;
@@ -542,6 +627,25 @@
                     </div>
                 `;
             });
+        }
+
+        window.switchPage = function(pid) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + pid).classList.add('active');
+            const nav = document.getElementById('nav-' + pid);
+            if(nav) nav.classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        window.toggleFaq = function(el) { el.classList.toggle('active'); }
+        
+        window.handleSearch = function() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            if (q.length > 0) switchPage('products');
+            const f = products.filter(p => p.name.toLowerCase().includes(q));
+            renderGrid(f, 'products-grid');
+            document.getElementById('no-results').style.display = f.length === 0 ? 'block' : 'none';
         }
 
         window.openModal = function(id) {
@@ -580,148 +684,65 @@
                 opt.innerText = c;
                 colorSelect.appendChild(opt);
             });
+
             document.getElementById('modal-size').value = "S";
             document.getElementById('productModal').style.display = 'flex';
         }
-        window.closeModal = () => document.getElementById('productModal').style.display = 'none';
+
+        window.closeModal = function() { document.getElementById('productModal').style.display = 'none'; }
         
-        // --- DATA MODIFICATION (HYBRID) ---
-        
-        window.addNewProduct = async function() {
-            const name = document.getElementById('new-name').value;
-            const cat = document.getElementById('new-cat').value;
-            const price = parseInt(document.getElementById('new-price').value);
-            const stock = parseInt(document.getElementById('new-stock').value);
-            const desc = document.getElementById('new-desc').value;
-            if (!name || !price) return alert("Name/Price required!");
-            
-            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-            const newItem = { id: newId, name, cat, price, stock, desc, colors:['Black','White'] };
-            
-            if(isOnlineMode) {
-                await setDoc(doc(productsColRef, newId.toString()), newItem);
-            } else {
-                products.push(newItem);
-                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
-                renderAllGrids();
-            }
-            alert("Product added!");
+        window.updatePrice = function() {
+            if(!currentProduct) return;
+            const sizeEl = document.getElementById('modal-size');
+            const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
+            document.querySelector('#modal-price-container span').innerText = fmt(currentProduct.price + extra);
         }
 
-        window.deleteProduct = async function(id) {
-            if(!confirm("Delete product?")) return;
-            if(isOnlineMode) {
-                await deleteDoc(doc(productsColRef, id.toString()));
-            } else {
-                products = products.filter(p => p.id !== id);
-                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
-                renderAllGrids();
-            }
-        }
-
-        window.addStock = async function(id) {
-            const p = products.find(x => x.id === id);
-            const qty = parseInt(prompt(`Current: ${p.stock}\nAdd amount:`, "10"));
-            if (isNaN(qty)) return;
-            
-            const newStock = Math.max(0, p.stock + qty);
-            
-            if(isOnlineMode) {
-                await updateDoc(doc(productsColRef, id.toString()), { stock: newStock });
-            } else {
-                p.stock = newStock;
-                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
-                renderAllGrids();
-            }
-        }
-
-        window.editSale = async function(id) {
-            const p = products.find(x => x.id === id);
-            const salePrice = parseInt(prompt(`Sale Price (0 to remove):`, "0"));
-            if (isNaN(salePrice)) return;
-
-            if(isOnlineMode) {
-                 if (salePrice > 0) {
-                    const up = { price: salePrice };
-                    if(!p.originalPrice) up.originalPrice = p.price;
-                    await updateDoc(doc(productsColRef, id.toString()), up);
-                } else {
-                    if(p.originalPrice) await updateDoc(doc(productsColRef, id.toString()), { price: p.originalPrice, originalPrice: null });
-                }
-            } else {
-                if(salePrice > 0) {
-                     if(!p.originalPrice) p.originalPrice = p.price;
-                     p.price = salePrice;
-                } else {
-                     if(p.originalPrice) { p.price = p.originalPrice; delete p.originalPrice; }
-                }
-                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
-                renderAllGrids();
-            }
-        }
-
-        window.resetDatabase = async function() {
-            if(!confirm("Reset all data to defaults?")) return;
-            if(isOnlineMode) {
-                // Simplified reset for demo
-                for (let p of products) await deleteDoc(doc(productsColRef, p.id.toString()));
-                for (let item of initialCatalog) await setDoc(doc(productsColRef, item.id.toString()), item);
-            } else {
-                products = JSON.parse(JSON.stringify(initialCatalog));
-                localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
-                renderAllGrids();
-            }
-            alert("Reset complete!");
-        }
-
-        // --- CART & LOGIN LOGIC ---
-        
         window.addToCart = function() {
             if(!currentProduct || currentProduct.stock <= 0) return alert("Stock empty.");
             const sizeEl = document.getElementById('modal-size');
             const colorEl = document.getElementById('modal-color');
             const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
-            cart.push({ cartId: Date.now(), pid: currentProduct.id, name: currentProduct.name, price: currentProduct.price + extra, size: sizeEl.value, color: colorEl.value });
+            cart.push({ 
+                cartId: Date.now(), 
+                pid: currentProduct.id, 
+                name: currentProduct.name, 
+                price: currentProduct.price + extra, 
+                size: sizeEl.value,
+                color: colorEl.value
+            });
             saveCart(); updateCartList(); closeModal(); toggleCart();
         }
 
-        window.removeFromCart = (cid) => { cart = cart.filter(c => c.cartId !== cid); saveCart(); updateCartList(); }
-        window.toggleCart = () => document.getElementById('cartSidebar').classList.toggle('active');
-        window.updatePrice = () => {
-             const sizeEl = document.getElementById('modal-size');
-             const extra = parseInt(sizeEl.options[sizeEl.selectedIndex].getAttribute('data-extra'));
-             document.querySelector('#modal-price-container span').innerText = fmt(currentProduct.price + extra);
-        }
-
         function saveCart() { localStorage.setItem(KEY_CART, JSON.stringify(cart)); updateCartBadge(); }
+        window.removeFromCart = function(cid) { cart = cart.filter(c => c.cartId !== cid); saveCart(); updateCartList(); }
         function updateCartBadge() { document.getElementById('cart-count').innerText = cart.length; }
+        
         function updateCartList() {
             const c = document.getElementById('cart-items');
+            const t = document.getElementById('cart-total');
             c.innerHTML = '';
             let total = 0;
             cart.forEach(item => {
                 total += item.price;
                 c.innerHTML += `<div class="cart-item"><img src="static/images/hoodie${item.pid}.jpg" onerror="this.style.display='none'"><div style="flex:1"><div style="font-weight:600;font-size:0.9rem">${item.name}</div><div style="font-size:0.8rem;color:#666">${item.color} | ${item.size}</div><div style="display:flex;justify-content:space-between;margin-top:5px;"><span style="font-weight:600">${fmt(item.price)}</span><span onclick="removeFromCart(${item.cartId})" style="color:red;cursor:pointer;font-size:0.8rem">Remove</span></div></div></div>`;
             });
-            document.getElementById('cart-total').innerText = fmt(total);
+            t.innerText = fmt(total);
         }
-
+        
+        window.toggleCart = function() { document.getElementById('cartSidebar').classList.toggle('active'); }
+        
         window.processCheckout = async function() {
             if(cart.length === 0) return alert("Cart is empty");
             
-            // Dec stock
+            // OPTIONAL: Decrement stock in database
+            // Note: This is simplified. Real apps check stock availability again before decrementing.
             for (let c of cart) {
                 const p = products.find(x => x.id === c.pid);
                 if (p && p.stock > 0) {
-                    if(isOnlineMode) {
-                        await updateDoc(doc(productsColRef, p.id.toString()), { stock: p.stock - 1 });
-                    } else {
-                        p.stock--;
-                        localStorage.setItem(KEY_LOCAL_PROD, JSON.stringify(products));
-                    }
+                     await updateDoc(doc(productsColRef, p.id.toString()), { stock: p.stock - 1 });
                 }
             }
-            if(!isOnlineMode) renderAllGrids();
 
             let msg = "Hello Rahata Store, my order:\n\n";
             let total = 0;
@@ -731,57 +752,25 @@
             window.open(`https://wa.me/6287785913689?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // --- AUTH UI ---
-        window.openLoginModal = () => {
-            if (isAdmin) {
-                if(!confirm("Logout Admin?")) return;
-                isAdmin = false;
-                sessionStorage.removeItem('rahata_admin');
-                document.body.classList.remove('admin-active');
-                renderAllGrids();
-            } else {
-                document.getElementById('loginModal').style.display = 'flex';
-                document.getElementById('login-error-msg').style.display = 'none';
-            }
+        // Init App
+        initAuth();
+        if (sessionStorage.getItem('rahata_admin') === 'true') {
+            isAdmin = true;
+            document.body.classList.add('admin-active');
         }
-        window.closeLoginModal = () => document.getElementById('loginModal').style.display = 'none';
-        window.performLogin = () => {
-            const u = document.getElementById('admin-user-input').value;
-            const p = document.getElementById('admin-pass-input').value;
-            if (u === ADMIN_USER && p === ADMIN_PASS) {
-                isAdmin = true;
-                sessionStorage.setItem('rahata_admin', 'true');
-                document.body.classList.add('admin-active');
-                closeLoginModal();
-                renderAllGrids();
-            } else {
-                document.getElementById('login-error-msg').style.display = 'block';
-            }
-        }
-        window.handleLogout = window.openLoginModal; // Reuse
-        window.handleSearch = () => {
-            const q = document.getElementById('search-input').value.toLowerCase();
-            if (q.length > 0) switchPage('products');
-            const f = products.filter(p => p.name.toLowerCase().includes(q));
-            renderGrid(f, 'products-grid');
-            document.getElementById('no-results').style.display = f.length === 0 ? 'block' : 'none';
-        }
-        
-        function hideLoaders() {
-            document.getElementById('loader-home').style.display = 'none';
-            document.getElementById('loader-products').style.display = 'none';
-            document.getElementById('loader-sale').style.display = 'none';
-        }
+        updateCartBadge();
+        updateCartList();
+
+        // Passkey enter listener
+        document.getElementById('admin-pass-input').addEventListener("keypress", function(event) {
+            if (event.key === "Enter") { performLogin(); }
+        });
 
         window.onclick = (e) => { 
             if(e.target == document.getElementById('productModal')) closeModal(); 
             if(e.target == document.getElementById('loginModal')) closeLoginModal();
         }
 
-        // START
-        initApp();
-
     </script>
 </body>
 </html>
-
