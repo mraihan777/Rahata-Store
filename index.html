@@ -24,11 +24,9 @@
         header { background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eee; }
         .navbar { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 15px 40px; position: relative; }
         
-        /* LOGO STYLE */
         .logo { display: block; text-decoration: none; }
         .logo img { height: 50px; width: auto; object-fit: contain; display: block; }
 
-        /* CENTERED MENU */
         .nav-links { display: flex; list-style: none; gap: 30px; position: absolute; left: 50%; transform: translateX(-50%); margin: 0; }
         .nav-links li { cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; position: relative; }
         .nav-links li:hover { opacity: 0.6; }
@@ -42,8 +40,11 @@
         .search-input { width: 100%; padding: 8px 35px 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: #f9f9f9; font-size: 0.9rem; outline: none; transition: background 0.3s, border-color 0.3s; }
         .search-input:focus { background: white; border-color: #111; }
         .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none; font-size: 0.9rem; }
-        .icon-btn { cursor: pointer; font-size: 1.2rem; background: none; border: none; position: relative; transition: transform 0.2s; }
+        .icon-btn { cursor: pointer; font-size: 1.2rem; background: none; border: none; position: relative; transition: transform 0.2s; color: var(--primary); }
         .icon-btn:hover { transform: scale(1.1); }
+        
+        #admin-btn.active-admin { color: var(--admin-color); }
+
         .cart-badge { position: absolute; top: -5px; right: -8px; background: var(--primary); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
 
         /* --- Page Content --- */
@@ -51,15 +52,13 @@
         .page-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Hero --- */
+        /* --- Hero & Grid --- */
         .hero { width: 100%; height: 80vh; position: relative; background-image: url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; display: flex; align-items: flex-end; padding-bottom: 60px; margin-bottom: 40px; }
         .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); }
         .hero-content { position: relative; z-index: 2; color: white; padding-left: 5%; max-width: 700px; }
         .hero h1 { font-size: 3.5rem; font-weight: 900; line-height: 0.95; margin-bottom: 20px; text-transform: uppercase; }
         .hero-btn { background-color: white; color: black; padding: 12px 35px; border-radius: 30px; text-decoration: none; font-weight: 700; display: inline-block; cursor: pointer; transition: 0.3s; border: none; font-size: 1rem; }
-        .hero-btn:hover { background-color: #ddd; }
-
-        /* --- Grid --- */
+        
         .container { max-width: 1440px; margin: 0 auto; padding: 0 5%; }
         .section-title { font-size: 2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; text-align: center; margin-top: 40px; }
         .section-desc { text-align: center; color: #666; margin-bottom: 40px; font-size: 1rem; }
@@ -87,7 +86,6 @@
         .btn-admin-edit { background: var(--admin-color); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
         .btn-admin-sale { background: #f59e0b; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
         .btn-admin-delete { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
-        /* NEW STOCK BUTTON STYLE */
         .btn-admin-stock { background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; flex: 1; }
         
         .admin-panel { display: none; background: #f0f9ff; border: 1px solid #bae6fd; padding: 20px; margin-bottom: 40px; border-radius: 8px; }
@@ -96,13 +94,8 @@
         .admin-form input, .admin-form select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
         .admin-form-full { grid-column: 1 / -1; }
 
-        /* --- About & FAQ --- */
-        .about-wrap, .faq-wrap { max-width: 800px; margin: 60px auto; padding: 0 20px; }
-        .about-text { font-size: 1.1rem; line-height: 1.8; color: #444; margin-bottom: 50px; text-align: center; }
-        .features { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; text-align: center; }
-        .feature-box { flex: 1; min-width: 200px; padding: 20px; background: var(--gray); border-radius: 8px; }
-        .feature-box i { font-size: 2rem; margin-bottom: 15px; }
-        
+        /* --- Footer & FAQ --- */
+        .faq-wrap, .about-wrap { max-width: 800px; margin: 60px auto; padding: 0 20px; }
         .faq-item { border-bottom: 1px solid #eee; padding: 20px 0; }
         .faq-question { font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
         .faq-answer { display: none; margin-top: 15px; color: #555; line-height: 1.6; }
@@ -110,23 +103,33 @@
         .faq-icon { transition: 0.3s; }
         .faq-item.active .faq-icon { transform: rotate(180deg); }
 
-        /* --- GLOBAL FOOTER --- */
         footer { background-color: #111; color: #fff; padding: 60px 5% 20px; margin-top: auto; }
         .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; max-width: 1440px; margin: 0 auto; margin-bottom: 40px; }
         .footer-section h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: #fff; text-transform: uppercase; }
         .footer-section p, .footer-section a { color: #999; font-size: 0.9rem; line-height: 1.8; text-decoration: none; display: block; margin-bottom: 8px; transition: 0.2s; }
         .footer-section a:hover { color: #fff; }
-        .footer-bottom { border-top: 1px solid #333; padding-top: 20px; text-align: center; color: #555; font-size: 0.8rem; display: flex; justify-content: center; gap: 20px; align-items: center; }
-        #admin-login-trigger { cursor: pointer; }
-        #admin-login-trigger:hover { color: #fff; }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 20px; text-align: center; color: #555; font-size: 0.8rem; }
 
-        /* --- Modal & Cart --- */
+        /* --- Modals --- */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; backdrop-filter: blur(3px); }
         .modal-content { background: white; width: 95%; max-width: 900px; height: auto; max-height: 90vh; display: flex; overflow: hidden; }
         .modal-left { flex: 1.1; background: var(--gray); display: flex; align-items: center; justify-content: center; }
         .modal-left img { width: 100%; height: 100%; object-fit: cover; }
         .modal-right { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
         .close-modal { align-self: flex-end; font-size: 1.5rem; cursor: pointer; margin-bottom: 10px; }
+
+        /* LOGIN MODAL SPECIFIC STYLE */
+        .login-modal-content { background: white; padding: 40px; border-radius: 8px; width: 400px; text-align: center; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .login-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; }
+        .login-subtitle { color: #777; font-size: 0.9rem; margin-bottom: 30px; }
+        .login-field { width: 100%; padding: 12px 15px; margin-bottom: 15px; border: 1px solid #eee; border-radius: 6px; background: #f9f9f9; outline: none; font-size: 0.95rem; transition: 0.3s; }
+        .login-field:focus { background: white; border-color: black; }
+        .login-error { color: var(--danger); font-size: 0.85rem; margin-bottom: 15px; display: none; }
+        .login-btn { width: 100%; background: black; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: 0.3s; }
+        .login-btn:hover { background: #333; }
+        .close-login { position: absolute; top: 15px; right: 20px; font-size: 1.2rem; cursor: pointer; color: #999; }
+        .close-login:hover { color: black; }
+
         .cart-sidebar { position: fixed; top: 0; right: -450px; width: 400px; height: 100%; background: white; z-index: 3000; transition: 0.4s ease; padding: 30px; display: flex; flex-direction: column; box-shadow: -5px 0 30px rgba(0,0,0,0.1); }
         .cart-sidebar.active { right: 0; }
         .cart-item { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
@@ -174,9 +177,15 @@
                     <input type="text" id="search-input" class="search-input" placeholder="Search..." onkeyup="handleSearch()">
                     <i class="fas fa-search search-icon"></i>
                 </div>
+
                 <button class="icon-btn" onclick="toggleCart()">
                     <i class="fas fa-shopping-bag"></i>
                     <span class="cart-badge" id="cart-count">0</span>
+                </button>
+                
+                <!-- ADMIN BUTTON -->
+                <button class="icon-btn" id="admin-btn" onclick="openLoginModal()" title="Admin Login">
+                    <i class="fas fa-user-cog"></i>
                 </button>
             </div>
         </div>
@@ -215,7 +224,7 @@
                     <input type="text" id="new-desc" placeholder="Short Description" class="admin-form-full">
                 </div>
                 <button class="btn-black" style="background: var(--admin-color); width: auto; padding: 10px 20px;" onclick="addNewProduct()">+ Add Product</button>
-                <button class="btn-black" style="background: #555; width: auto; padding: 10px 20px;" onclick="logoutAdmin()">Logout Admin</button>
+                <button class="btn-black" style="background: #555; width: auto; padding: 10px 20px;" onclick="handleLogout()">Logout Admin</button>
             </div>
 
             <div class="section-title">All Products</div>
@@ -285,11 +294,25 @@
         </div>
         <div class="footer-bottom">
             <span>&copy; 2023 Rahata Store. All Rights Reserved.</span>
-            <span id="admin-login-trigger" onclick="loginAdmin()">Admin Login</span>
         </div>
     </footer>
 
-    <!-- Modal & Cart -->
+    <!-- LOGIN MODAL (NEW) -->
+    <div id="loginModal" class="modal">
+        <div class="login-modal-content">
+            <span class="close-login" onclick="closeLoginModal()">&times;</span>
+            <div class="login-title">Admin Access</div>
+            <div class="login-subtitle">Login to manage your store inventory.</div>
+            
+            <div class="login-error" id="login-error-msg">Incorrect Username or Password.</div>
+            
+            <input type="text" id="admin-user-input" class="login-field" placeholder="Username">
+            <input type="password" id="admin-pass-input" class="login-field" placeholder="Password">
+            <button class="login-btn" onclick="performLogin()">Login</button>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
     <div id="productModal" class="modal">
         <div class="modal-content">
             <div class="modal-left" id="modal-img-container"></div>
@@ -315,6 +338,7 @@
         </div>
     </div>
 
+    <!-- Cart Sidebar -->
     <div class="cart-sidebar" id="cartSidebar">
         <div style="display:flex; justify-content:space-between; margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid #eee;">
             <h2 style="font-size:1.5rem; font-weight:700;">Bag</h2>
@@ -330,12 +354,17 @@
     <script>
         // --- CONFIG ---
         const fmt = (n) => 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        const KEY_PROD = 'rahata_fixed_v19'; // Updated key for color data
+        const KEY_PROD = 'rahata_fixed_v19';
         const KEY_CART = 'rahata_cart_v19';
+        
+        // ADMIN CREDENTIALS
+        const ADMIN_USER = "admin"; 
+        const ADMIN_PASS = "mhmdrhn777";
+
         let products = [], cart = JSON.parse(localStorage.getItem(KEY_CART)) || [], currentProduct = null;
         let isAdmin = false;
 
-        // --- FULL PRODUCT CATALOG WITH COLORS (ENGLISH) ---
+        // --- CATALOG DATA ---
         const initialCatalog = [
             { id: 1, name: "Hoodie Cotton", cat: "Lifestyle", price: 310000, desc: "Pure comfort with 100% premium cotton. Soft, cool, and perfect for daily use.", colors: ['Black', 'Grey', 'Navy'] },
             { id: 2, name: "Hoodie Fleece Premium", cat: "Winter", price: 350000, originalPrice: 450000, desc: "Maximum warmth with thick fleece material. Perfect for cold weather without sacrificing style. (SALE ITEM)", colors: ['Grey', 'Black', 'Cream'] },
@@ -373,7 +402,6 @@
             const saved = localStorage.getItem(KEY_PROD);
             if (saved) {
                 products = JSON.parse(saved);
-                // Use a property check to reset data if schema changed (e.g. colors)
                 if (!products[0].colors) resetData(); 
             } else {
                 resetData();
@@ -402,31 +430,68 @@
             renderGrid(saleItems, 'sale-grid');
         }
 
-        // --- ADMIN ---
-        function loginAdmin() {
-            const pass = prompt("Enter Admin Password:");
-            if (pass === "mhmrhn777") {
-                enableAdminMode();
-                alert("Login Successful!");
-                switchPage('products');
-            } else if (pass) { alert("Wrong Password!"); }
+        // --- LOGIN MODAL LOGIC ---
+        function openLoginModal() {
+            if (isAdmin) {
+                handleLogout();
+            } else {
+                document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('admin-user-input').value = '';
+                document.getElementById('admin-pass-input').value = '';
+                document.getElementById('login-error-msg').style.display = 'none';
+                document.getElementById('admin-user-input').focus();
+            }
         }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        function performLogin() {
+            const user = document.getElementById('admin-user-input').value;
+            const pass = document.getElementById('admin-pass-input').value;
+            const err = document.getElementById('login-error-msg');
+
+            if (user === ADMIN_USER && pass === ADMIN_PASS) {
+                enableAdminMode();
+                closeLoginModal();
+                switchPage('products');
+            } else {
+                err.style.display = 'block';
+                err.innerText = "Wrong Username or Password";
+            }
+        }
+        
+        // Trigger login on Enter key
+        document.getElementById('admin-pass-input').addEventListener("keypress", function(event) {
+            if (event.key === "Enter") { performLogin(); }
+        });
+
         function enableAdminMode() {
             isAdmin = true;
             sessionStorage.setItem('rahata_admin', 'true');
             document.body.classList.add('admin-active');
-            document.getElementById('admin-login-trigger').innerText = 'Logout Admin';
-            document.getElementById('admin-login-trigger').onclick = logoutAdmin;
+            const btn = document.getElementById('admin-btn');
+            if(btn) {
+                btn.classList.add('active-admin');
+                btn.title = "Logout Admin";
+            }
             renderAllGrids();
         }
-        function logoutAdmin() {
+
+        function handleLogout() {
+            if(!confirm("Logout from Admin mode?")) return;
             isAdmin = false;
             sessionStorage.removeItem('rahata_admin');
             document.body.classList.remove('admin-active');
-            document.getElementById('admin-login-trigger').innerText = 'Admin Login';
-            document.getElementById('admin-login-trigger').onclick = loginAdmin;
+            const btn = document.getElementById('admin-btn');
+            if(btn) {
+                btn.classList.remove('active-admin');
+                btn.title = "Admin Login";
+            }
             renderAllGrids();
         }
+
         function addNewProduct() {
             const name = document.getElementById('new-name').value;
             const cat = document.getElementById('new-cat').value;
@@ -452,7 +517,6 @@
             const newPrice = prompt("New Price:", p.price);
             if (newPrice) { p.price = parseInt(newPrice); saveProducts(); renderAllGrids(); }
         }
-        // New: Set Sale for Existing Products
         function editSale(id) {
             const p = products.find(x => x.id === id);
             const salePrice = prompt(`Enter SALE price for ${p.name} (Normal: ${fmt(p.originalPrice || p.price)}). Enter 0 to remove sale.`);
@@ -471,7 +535,6 @@
                 renderAllGrids();
             }
         }
-        // NEW: Add Stock Function
         function addStock(id) {
             const p = products.find(x => x.id === id);
             const quantity = prompt(`Stok Saat Ini: ${p.stock}\nBerapa banyak stok yang ingin ditambahkan? (Gunakan angka negatif untuk mengurangi)`, "10");
@@ -479,7 +542,7 @@
                 const qty = parseInt(quantity);
                 if (!isNaN(qty)) {
                     p.stock += qty;
-                    if (p.stock < 0) p.stock = 0; // Prevent negative stock
+                    if (p.stock < 0) p.stock = 0;
                     saveProducts();
                     renderAllGrids();
                     alert(`Stok berhasil diperbarui! Stok baru: ${p.stock}`);
@@ -501,7 +564,7 @@
                     badge += '<span class="sale-badge">SALE</span>';
                     priceHtml = `<div class="product-price-wrap"><div class="product-discount-price">${fmt(p.price)}</div><div class="product-old-price">${fmt(p.originalPrice)}</div></div>`;
                 }
-                // UPDATED ADMIN HTML TO INCLUDE STOCK BUTTON
+                
                 let adminHtml = isAdmin ? `
                     <div class="admin-controls">
                         <button class="btn-admin-edit" onclick="event.stopPropagation(); editProduct(${p.id})">Edit</button>
@@ -568,10 +631,8 @@
                 btn.style.background = "#ccc";
             }
             
-            // Populate Colors
             const colorSelect = document.getElementById('modal-color');
             colorSelect.innerHTML = '';
-            // Use product specific colors, fallback to default if missing
             const productColors = p.colors || ['Black', 'White']; 
             productColors.forEach(c => {
                 const opt = document.createElement('option');
@@ -630,10 +691,11 @@
             cart = []; saveCart(); updateCartList(); renderAllGrids(); toggleCart();
             window.open(`https://wa.me/6287785913689?text=${encodeURIComponent(msg)}`, '_blank');
         }
-        window.onclick = (e) => { if(e.target == document.getElementById('productModal')) closeModal(); }
+        window.onclick = (e) => { 
+            if(e.target == document.getElementById('productModal')) closeModal(); 
+            if(e.target == document.getElementById('loginModal')) closeLoginModal();
+        }
         init();
     </script>
 </body>
-
 </html>
-
